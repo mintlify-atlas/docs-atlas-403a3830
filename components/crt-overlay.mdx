@@ -1,0 +1,138 @@
+---
+title: "CRTOverlay: Scanline & Vignette Screen Effect"
+sidebarTitle: "CRT Overlay"
+description: "A fixed, three-layer CRT screen simulation — scanlines, animated bar, and edge vignette — rendered above all content in Dev Mode Arcade."
+---
+
+`CRTOverlay` drapes a persistent cathode-ray tube illusion over the entire viewport. It stacks three visual layers — a static scanline grid, a looping bright bar that travels down the screen, and a radial vignette that darkens the edges — to make every page feel like it's being displayed on a genuine arcade monitor. Because it uses `pointer-events-none`, it never interferes with clicks, keyboard focus, or any other interactivity beneath it.
+
+## Usage
+
+Place `<CRTOverlay />` once, at the very top of your app's render tree, outside any route or page component. It positions itself with `fixed inset-0`, so it will always cover the full viewport regardless of scroll position or page content.
+
+```jsx
+import { CRTOverlay } from './components/arcade/CRTOverlay'
+
+function App() {
+  return (
+    <>
+      <CRTOverlay />
+      {/* rest of app */}
+    </>
+  )
+}
+```
+
+<Note>
+  `CRTOverlay` accepts no props. It is a pure presentational component with a fixed, intentional appearance. Configuration is done by editing the CSS utilities it relies on — `scanlines-bg` and `animate-scanline` — in `assets/main.css`.
+</Note>
+
+## Layer Breakdown
+
+`CRTOverlay` renders a single `div` with three absolutely-positioned children, each responsible for one visual layer.
+
+### Layer 1 — Scanlines background
+
+```
+className: "absolute inset-0 scanlines-bg opacity-40 mix-blend-overlay"
+```
+
+A full-bleed div that applies the `scanlines-bg` utility class. This class generates a repeating linear gradient that alternates between transparent and a semi-transparent black every 2px, producing the classic horizontal line raster pattern:
+
+```css
+.scanlines-bg {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    transparent 50%,
+    rgba(0, 0, 0, 0.25) 50%,
+    rgba(0, 0, 0, 0.25)
+  );
+  background-size: 100% 4px;
+}
+```
+
+The `mix-blend-overlay` mode ensures the scanlines interact naturally with the colors beneath rather than simply darkening them, and `opacity-40` keeps them subtle.
+
+### Layer 2 — Animated scanline bar
+
+```
+className: "absolute top-0 left-0 right-0 h-32 bg-gradient-to-b
+            from-transparent via-[rgba(255,255,255,0.05)] to-transparent
+            animate-scanline opacity-50"
+```
+
+A 128px-tall (`h-32`) horizontal bar with a soft white gradient feathered at both edges. It continuously travels from the top to the bottom of the container using the `animate-scanline` keyframe animation:
+
+```css
+@keyframes scanline {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+.animate-scanline {
+  animation: scanline 8s linear infinite;
+}
+```
+
+The 8-second duration and `linear` timing give it the slow, steady sweep of a CRT refresh cycle. The bar is very faint (`opacity-50`, and the via-color is only 5% white) so it reads as a subtle sheen rather than a distracting flash.
+
+### Layer 3 — Vignette
+
+```
+className: "absolute inset-0
+            bg-[radial-gradient(circle_at_center,transparent_50%,rgba(10,5,16,0.8)_100%)]"
+```
+
+A full-bleed radial gradient that is fully transparent at the screen center and fades to 80% opacity of the background color (`#0A0510`) at the outer edges. This replicates the natural falloff of brightness toward the bezels of a CRT tube and gives every page a subtle tunnel-vision focus toward the center.
+
+## Stacking Context
+
+`CRTOverlay` is positioned `fixed` with `z-50`, placing it above virtually all other content in the app. The full class breakdown of the outer wrapper:
+
+```
+fixed inset-0 pointer-events-none z-50 overflow-hidden
+```
+
+| Class | Effect |
+|---|---|
+| `fixed inset-0` | Covers the full viewport; does not scroll with page content |
+| `pointer-events-none` | All mouse, touch, and keyboard events pass through to content below |
+| `z-50` | Sits above page content, modals at lower z-indices, and navigation layers |
+| `overflow-hidden` | Clips the animated scanline bar so it doesn't create scrollbars as it exits the top or bottom |
+
+<Note>
+  If your project uses modals, tooltips, or dropdowns with a `z-index` above 50, they will render on top of the CRT effect — which is usually desirable. If you want the CRT to overlay everything (including modals), increase the `z-50` class to `z-[100]` or higher.
+</Note>
+
+<Tip>
+  The vignette layer uses the exact value of `arcade-bg` (`rgba(10, 5, 16, 0.8)`) as its outer color. If you change the page background color, update this gradient to match so the vignette blends seamlessly with your new background.
+</Tip>
+
+## CSS Utilities Reference
+
+Two custom utility classes from `assets/main.css` power the effect:
+
+| Utility | Definition | Used In |
+|---|---|---|
+| `scanlines-bg` | Repeating 4px linear gradient (transparent / `rgba(0,0,0,0.25)`) | Layer 1 |
+| `animate-scanline` | `scanline` keyframe, 8s linear infinite | Layer 2 |
+
+Neither class is a standard Tailwind utility — both are defined in the project's custom CSS layer. See [`reference/animations`](/reference/animations) for the full list of custom animation utilities.
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="ArcadeButton" icon="gamepad-2" href="/components/arcade-button">
+    Neon pixel-font buttons that live beneath the CRT overlay.
+  </Card>
+  <Card title="Page Transition" icon="film" href="/components/page-transition">
+    CRT power-on enter/exit animation wrapping each page's content.
+  </Card>
+  <Card title="Animations Reference" icon="sparkles" href="/reference/animations">
+    All custom keyframes and animation utilities used in the project.
+  </Card>
+  <Card title="Design Tokens" icon="palette" href="/reference/design-tokens">
+    Arcade color palette including the `arcade-bg` value used in the vignette.
+  </Card>
+</CardGroup>

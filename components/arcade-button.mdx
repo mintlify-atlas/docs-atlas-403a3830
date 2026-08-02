@@ -1,0 +1,169 @@
+---
+title: "ArcadeButton: Retro Pixel UI Button Component"
+sidebarTitle: "ArcadeButton"
+description: "A Framer Motion–powered retro arcade button with four neon color variants, hover glow effects, and pixel-font styling for Dev Mode Arcade."
+---
+
+`ArcadeButton` is the primary interactive element across Dev Mode Arcade. It renders a `motion.button` styled with the VT323 pixel font, a 2px neon border, and an optional hover glow — all tuned to the arcade aesthetic. Use it anywhere you need a call-to-action, navigation trigger, or form submission that fits the retro cabinet look.
+
+## Props
+
+<ParamField path="color" type="string" default="lime">
+  The neon color variant for the button's border, text, hover fill, and glow. Must be one of `"purple"`, `"lime"`, `"magenta"`, or `"cyan"`. Each value maps to a matching set of Tailwind utility classes and a `box-glow-{color}` on hover.
+</ParamField>
+
+<ParamField path="label" type="string" required>
+  The visible text rendered inside the button. Automatically transformed to uppercase via `uppercase` and spaced out with `tracking-widest` — no need to shout-case your strings, though it is encouraged for the aesthetic.
+</ParamField>
+
+<ParamField path="glow" type="boolean" default="true">
+  When `true`, applies a `hover:box-glow-{color}` CSS utility on hover that produces an outer and inner neon box-shadow matching the chosen color. Set to `false` for a subtler button in dense UI areas.
+</ParamField>
+
+<ParamField path="className" type="string" default='""'>
+  Additional Tailwind or custom CSS classes to merge into the button's class list. Appended after all base and variant classes, so your overrides win.
+</ParamField>
+
+<ParamField path="...motionProps" type="Framer Motion button props">
+  Any remaining props are spread directly onto the underlying `motion.button` element. Use this for event handlers (`onClick`, `onFocus`), `aria-*` attributes, `disabled`, custom Framer Motion animation overrides, and more.
+</ParamField>
+
+## Color Variants
+
+Each color variant applies a coordinated set of border, text, hover background, and hover glow styles using the arcade design token palette.
+
+| Variant | Border / Text | Hover Background | Hover Glow |
+|---|---|---|---|
+| `"lime"` | `#39FF14` | `#39FF14` | `box-glow-lime` |
+| `"cyan"` | `#00F0FF` | `#00F0FF` | `box-glow-cyan` |
+| `"magenta"` | `#FF10F0` | `#FF10F0` | `box-glow-magenta` |
+| `"purple"` | `#B026FF` | `#B026FF` | `box-glow-purple` |
+
+On hover, the button floods with the variant's background color and switches text to `arcade-bg` (`#0A0510`) for maximum contrast — simulating a lit arcade button press.
+
+## Usage
+
+### Basic usage
+
+```jsx
+import { ArcadeButton } from './components/arcade/ArcadeButton'
+
+// Basic usage
+<ArcadeButton label="START GAME" color="lime" />
+
+// Without glow
+<ArcadeButton label="QUIT" color="magenta" glow={false} />
+
+// With custom click handler
+<ArcadeButton
+  label="INSERT COIN"
+  color="cyan"
+  onClick={() => console.log('coin inserted')}
+/>
+```
+
+### All color variants
+
+```jsx
+import { ArcadeButton } from './components/arcade/ArcadeButton'
+
+<div className="flex gap-4 flex-wrap">
+  <ArcadeButton label="LIME" color="lime" />
+  <ArcadeButton label="CYAN" color="cyan" />
+  <ArcadeButton label="MAGENTA" color="magenta" />
+  <ArcadeButton label="PURPLE" color="purple" />
+</div>
+```
+
+### Passing Framer Motion props
+
+Because `ArcadeButton` accepts `...motionProps`, you can supply custom animation overrides or gesture callbacks directly:
+
+```jsx
+import { ArcadeButton } from './components/arcade/ArcadeButton'
+
+<ArcadeButton
+  label="LEVEL UP"
+  color="purple"
+  whileHover={{ scale: 1.1, rotate: 2 }}
+  whileTap={{ scale: 0.9 }}
+  animate={{ opacity: [0, 1] }}
+  transition={{ duration: 0.5 }}
+/>
+```
+
+### Disabled state
+
+```jsx
+import { ArcadeButton } from './components/arcade/ArcadeButton'
+
+<ArcadeButton
+  label="LOCKED"
+  color="cyan"
+  disabled
+  className="opacity-40 cursor-not-allowed"
+/>
+```
+
+## Framer Motion Integration
+
+`ArcadeButton` is built on `motion.button` from Framer Motion. By default it uses:
+
+- `whileHover={{ scale: 1.05 }}` — slight scale-up on pointer enter
+- `whileTap={{ scale: 0.95 }}` — scale-down to simulate a physical button press
+
+Any `whileHover`, `whileTap`, or other Framer Motion gesture props you pass in via `...motionProps` will **override** these defaults, giving you full control when you need a different feel.
+
+<Note>
+  `ArcadeButton` does not wrap itself in `AnimatePresence`. If you need enter/exit animations tied to component mount, wrap it externally or combine it with a [`PageTransition`](/components/page-transition).
+</Note>
+
+## Font Requirement
+
+`ArcadeButton` applies `font-pixel`, which maps to **VT323** (Google Fonts). This font must be loaded for the arcade character style to render correctly. The project imports it at the top of `assets/main.css`:
+
+```css
+@import "https://fonts.googleapis.com/css2?family=VT323&display=swap";
+```
+
+<Tip>
+  VT323 is a monospaced bitmap font designed to emulate CRT terminal output. At `text-xl` (the button default) it renders crisply — if you override the size, prefer multiples of `4px` to stay on pixel boundaries.
+</Tip>
+
+## Glow Utilities
+
+The hover glow is applied via custom CSS utilities defined in `assets/main.css`. These are not standard Tailwind classes — they are added through the project's custom layer:
+
+```css
+.hover\:box-glow-lime:hover {
+  box-shadow: 0 0 10px #39ff14, inset 0 0 10px #39ff14;
+}
+.hover\:box-glow-cyan:hover {
+  box-shadow: 0 0 10px #00f0ff, inset 0 0 10px #00f0ff;
+}
+.hover\:box-glow-magenta:hover {
+  box-shadow: 0 0 10px #ff10f0, inset 0 0 10px #ff10f0;
+}
+.hover\:box-glow-purple:hover {
+  box-shadow: 0 0 10px #b026ff, inset 0 0 10px #b026ff;
+}
+```
+
+See [`reference/design-tokens`](/reference/design-tokens) for the full palette and [`reference/animations`](/reference/animations) for other glow and animation utilities available in the project.
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="CRT Overlay" icon="tv" href="/components/crt-overlay">
+    The fixed scanline + vignette layer rendered above all content, including buttons.
+  </Card>
+  <Card title="Page Transition" icon="film" href="/components/page-transition">
+    Wraps page content in a CRT power-on enter/exit animation.
+  </Card>
+  <Card title="Design Tokens" icon="palette" href="/reference/design-tokens">
+    Full arcade color palette, glow values, and Tailwind config.
+  </Card>
+  <Card title="Typography" icon="type" href="/reference/typography">
+    VT323 pixel font and JetBrains Mono usage across the project.
+  </Card>
+</CardGroup>

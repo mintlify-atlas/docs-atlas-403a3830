@@ -1,0 +1,191 @@
+---
+title: "Contact Page: High Score Entry & Guestbook"
+sidebarTitle: "Contact"
+description: "High-score contact screen: three-initials entry form, optional message, and a guestbook leaderboard table. Fully client-side with no backend integration."
+---
+
+The Contact page turns the act of reaching out into a classic arcade high-score entry screen. The left side of the page features an initials input — three single-character fields with automatic focus advancement — plus an optional message textarea and a **TRANSMIT SIGNAL** submit button. The right side shows a leaderboard table populated from the `guestbook` array in `data/mockData.js`, displaying rank, score, initials, and a short message. The form is entirely client-side: it uses React `useState` for local state management and does not submit to any backend. To wire up real form submission, the TRANSMIT SIGNAL button's handler is the integration point.
+
+## Route
+
+| Property | Value |
+|---|---|
+| Path | `/contact` |
+| File (compiled) | `assets/main.js` — `ContactPage` component |
+| Data export | `guestbook` (exported as `g` from `mockData.js`) |
+| Theme colors | `arcade-lime` · `arcade-purple` · `arcade-cyan` |
+| Screen title | **NEW HIGH SCORE** |
+
+## Layout
+
+The page uses a two-column layout on desktop, stacking to a single column on mobile.
+
+| Column | Contents |
+|---|---|
+| Left | Initials inputs + message textarea + TRANSMIT SIGNAL button |
+| Right | Guestbook leaderboard table |
+
+## Left Column — Form
+
+### Initials Input
+
+Three separate single-character `<input>` fields spell out the player's initials, styled to look like the letter-entry row on a classic arcade cabinet. When a character is typed in one field, focus automatically advances to the next field. Backspacing in an empty field returns focus to the previous field.
+
+State is managed as an array of three strings:
+
+```jsx
+// ContactPage state
+const [initials, setInitials] = useState(["", "", ""]);
+const [message, setMessage] = useState("");
+```
+
+Each input is capped at `maxLength={1}` and styled with a large pixel font and a lime border glow.
+
+### Message Textarea
+
+An optional free-text `<textarea>` beneath the initials row. The placeholder text invites a short message. The field is not required — the form can be submitted with initials only.
+
+### TRANSMIT SIGNAL Button
+
+An `ArcadeButton` in `lime` color that triggers the form submission handler. In the default implementation, the handler only updates local state (clears the form). To integrate real submission, replace the handler body with your preferred delivery method.
+
+```jsx
+// Default no-op handler — replace with your integration
+const handleSubmit = (e) => {
+  e.preventDefault();
+  // TODO: send to a form backend (Formspree, Netlify Forms, etc.)
+  setInitials(["", "", ""]);
+  setMessage("");
+};
+```
+
+<Note>
+  The Contact form has **no backend integration** out of the box. Submitted data is never sent anywhere — the form resets client-side only. To capture real messages, integrate a service such as [Formspree](https://formspree.io), [Netlify Forms](https://docs.netlify.com/forms/setup/), or [EmailJS](https://www.emailjs.com) in the `handleSubmit` function.
+</Note>
+
+## Right Column — Guestbook Leaderboard
+
+The leaderboard table renders all entries from the `guestbook` array. It mirrors a high-score board with four columns:
+
+| Column | Data Field | Description |
+|---|---|---|
+| RANK | Derived from array index + 1 | `#1`, `#2`, etc. |
+| SCORE | `score` | Numeric score, formatted with commas |
+| NAME | `initials` | Three-character initials in pixel font |
+| MESSAGE | `message` | Short message string |
+
+### Default Entries
+
+| Rank | Score | Name | Message |
+|---|---|---|---|
+| #1 | 999,999 | AAA | insert token here |
+| #2 | 500,000 | MOM | proud of you |
+| #3 | 1,337 | H4X | nice code |
+| #4 | 100 | DOG | woof |
+
+## Data Schema
+
+Each entry in the `guestbook` array must conform to the following shape:
+
+```ts
+type GuestbookEntry = {
+  id: string;       // Unique identifier, used as React key
+  initials: string; // Three-character player name (uppercase)
+  score: number;    // Numeric score value for display
+  message: string;  // Short message shown in the MESSAGE column
+};
+```
+
+### Field Reference
+
+| Field | Type | Displayed As | Notes |
+|---|---|---|---|
+| `id` | `string` | Not displayed | Used as React list key |
+| `initials` | `string` | NAME column, pixel font | Exactly 3 chars, uppercase |
+| `score` | `number` | SCORE column | Rendered with `toLocaleString()` |
+| `message` | `string` | MESSAGE column | Keep under 30 chars for table fit |
+
+## Customization
+
+**Editing default guestbook entries**
+
+Open `data/mockData.js` and update the `guestbook` array. Reorder, add, or remove entries as desired. Rank is derived from position in the array, so sort entries by descending score for correct display.
+
+```js
+// data/mockData.js
+export const guestbook = [
+  { id: "g1", initials: "AAA", score: 999999, message: "insert token here" },
+  { id: "g2", initials: "MOM", score: 500000, message: "proud of you" },
+  { id: "g3", initials: "H4X", score: 1337,   message: "nice code" },
+  { id: "g4", initials: "DOG", score: 100,    message: "woof" },
+];
+```
+
+**Adding a real form backend**
+
+Replace the `handleSubmit` stub with a call to your preferred form service. Below is an example using the `fetch` API with Formspree:
+
+```js
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  await fetch("https://formspree.io/f/YOUR_FORM_ID", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      initials: initials.join(""),
+      message,
+    }),
+  });
+  setInitials(["", "", ""]);
+  setMessage("");
+};
+```
+
+**Changing the score values**
+
+Score values in the guestbook are purely decorative. Feel free to assign any numbers that fit the arcade aesthetic — the important visual effect is the high-score formatting with leading zeros or commas.
+
+<Tip>
+  To prevent the three initials inputs from feeling disconnected, ensure each `input` element has a matching `ref` so the auto-focus advancement logic can programmatically call `.focus()` on the next field. If you refactor the input layout, preserve the `maxLength={1}` + `ref` + `onChange` auto-advance pattern to maintain the arcade feel.
+</Tip>
+
+## Auto-Focus Logic
+
+The initials auto-focus behavior is handled in the `onChange` handler for each input. When a character is entered, the handler calls `.focus()` on the next input ref. On `keyDown` for Backspace in an empty field, it calls `.focus()` on the previous ref.
+
+```jsx
+// Simplified auto-focus pattern
+const inputRefs = [useRef(null), useRef(null), useRef(null)];
+
+const handleInitialChange = (value, index) => {
+  const updated = [...initials];
+  updated[index] = value.slice(-1).toUpperCase();
+  setInitials(updated);
+  if (value && index < 2) {
+    inputRefs[index + 1].current.focus();
+  }
+};
+
+const handleInitialKeyDown = (e, index) => {
+  if (e.key === "Backspace" && !initials[index] && index > 0) {
+    inputRefs[index - 1].current.focus();
+  }
+};
+```
+
+## Related Pages
+
+<CardGroup cols={2}>
+  <Card title="Home" icon="house" href="/components/home">
+    The attract screen that routes visitors to the Contact page via ArcadeButton.
+  </Card>
+  <Card title="ArcadeButton" icon="hand-pointer" href="/components/arcade-button">
+    The TRANSMIT SIGNAL button component used to submit the form.
+  </Card>
+  <Card title="Mock Data Reference" icon="database" href="/reference/mock-data">
+    Full schema for the guestbook export and all other mockData.js arrays.
+  </Card>
+  <Card title="Customization Guide" icon="screwdriver-wrench" href="/reference/customization">
+    Step-by-step guide for wiring up the Contact form to a real backend.
+  </Card>
+</CardGroup>

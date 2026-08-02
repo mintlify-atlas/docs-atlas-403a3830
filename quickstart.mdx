@@ -1,47 +1,182 @@
 ---
-title: "Quickstart"
-description: "Begin with a guide on the fastest path to a successful outcome"
+title: "Quickstart: Run Dev Mode Arcade in Under 5 Minutes"
+sidebarTitle: "Quickstart"
+description: "Clone Dev Mode Arcade, install dependencies, start the Vite dev server, and personalise the portfolio by editing a single data file — all in under five minutes."
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+This quickstart walks you through getting Dev Mode Arcade running on your local machine from scratch. By the end you will have the full retro arcade portfolio live at `localhost:5173`, with all seven routes navigable and the neon CRT aesthetic rendering exactly as intended.
 
 ## Prerequisites
 
-Before you begin, you must have:
+Before you begin, make sure the following are installed on your machine:
 
-- Requirement one (for example, Node.js 18+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
+- **Node.js 18 or later** — [nodejs.org](https://nodejs.org)
+- **A package manager** — npm (bundled with Node), yarn, or pnpm
+- **Git** — [git-scm.com](https://git-scm.com)
 
-## Get started
+<Note>
+  Node.js 18+ is required because Vite's current release depends on Node's built-in `fetch` and other modern APIs that are not available in older runtimes.
+</Note>
+
+## Steps
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+  <Step title="Clone the repository">
+    Clone the Dev Mode Arcade source to your local machine and move into the project directory:
 
     ```bash
-    npm install your-package
+    git clone https://github.com/apursley2012/dev-mode-arcade.git
+    cd dev-mode-arcade
     ```
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
 
-    ```bash
-    your-cli init
-    ```
+  <Step title="Install dependencies">
+    Install all project dependencies using your preferred package manager:
+
+    <CodeGroup>
+      ```bash npm
+      npm install
+      ```
+
+      ```bash yarn
+      yarn install
+      ```
+
+      ```bash pnpm
+      pnpm install
+      ```
+    </CodeGroup>
+
+    This pulls in React 18, Vite, React Router v6, Framer Motion, Tailwind CSS, and every other dependency listed in `package.json`.
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
+
+  <Step title="Start the development server">
+    Launch the Vite dev server with hot module replacement:
 
     ```bash
-    your-cli start
+    npm run dev
     ```
+
+    Vite starts almost instantly. Open your browser to [http://localhost:5173](http://localhost:5173) — you should see the home screen with the CRT scanline overlay and neon glow effects fully active.
+
+    <Tip>
+      Vite's HMR means any change you save to a component or to `data/mockData.js` reflects in the browser within milliseconds, without a full page reload.
+    </Tip>
+  </Step>
+
+  <Step title="Explore the pages">
+    The portfolio has seven routes, all accessible via the in-app navigation:
+
+    | Route | Page | Description |
+    |---|---|---|
+    | `/#/` | Home | Landing screen with animated intro and nav buttons |
+    | `/#/projects` | Projects | Project cards styled as arcade game cabinets |
+    | `/#/about` | About | Personal bio section |
+    | `/#/skills` | Skills | Skill tree with RPG-style level indicators |
+    | `/#/writing` | Writing | Article list formatted as game chapters |
+    | `/#/case-studies` | Case Studies | Boss-fight-framed engineering deep dives |
+    | `/#/contact` | Contact | Contact form and guestbook leaderboard |
+
+    All navigation uses hash URLs so the browser never makes a new server request when you move between pages.
+  </Step>
+
+  <Step title="Edit your data">
+    Every piece of content in the portfolio is driven by `data/mockData.js`. Open it and replace the placeholder entries with your own projects, skills, articles, case studies, and guestbook entries:
+
+    ```bash
+    # From the project root
+    open data/mockData.js   # macOS
+    code data/mockData.js   # VS Code
+    ```
+
+    Save the file — Vite reloads the affected pages instantly via HMR.
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+## Data File Structure
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
+`data/mockData.js` exports five named collections. Here is the complete shape of each:
+
+```js
+// Projects array — exported as `p`
+// Displayed on the /projects page as arcade cabinet cards
+[
+  {
+    id,          // string  — unique identifier, e.g. "proj-1"
+    title,       // string  — project name, e.g. "Neon Nexus"
+    genre,       // string  — tech stack label, e.g. "React / Three.js"
+    players,     // string  — "Solo" or "Team"
+    year,        // string  — four-digit year, e.g. "2025"
+    description, // string  — one-sentence description
+    color,       // string  — one of "purple" | "lime" | "cyan" | "magenta"
+  },
+  // ...
+]
+
+// Skills object — exported as `s`
+// Displayed on the /skills page as an RPG skill tree
+{
+  frontend: [ { name, level, desc }, ... ],  // e.g. { name: "React", level: "Level 99", desc: "..." }
+  backend:  [ { name, level, desc }, ... ],
+  tooling:  [ { name, level, desc }, ... ],
+}
+
+// Articles array — exported as `a`
+// Displayed on the /writing page as numbered game chapters
+[
+  {
+    id,      // string — unique identifier, e.g. "art-1"
+    chapter, // string — zero-padded chapter number, e.g. "01"
+    title,   // string — article title
+    type,    // string — label such as "REFLECTION" | "TECHNICAL" | "BUG REPORT"
+    date,    // string — human-readable date, e.g. "Oct 2025"
+    excerpt, // string — one-sentence summary
+  },
+  // ...
+]
+
+// Case studies array — exported as `c`
+// Displayed on the /case-studies page as boss-fight narratives
+[
+  {
+    id,       // string — unique identifier, e.g. "cs-1"
+    title,    // string — case study name, e.g. "Project: Overhaul"
+    boss,     // string — the antagonist / problem framing, e.g. "The Legacy Monolith"
+    problem,  // string — description of the challenge
+    strategy, // string — the approach taken
+    combos,   // string[] — list of key techniques or tools used
+    victory,  // string — measurable outcome
+    bonus,    // string — next steps or follow-on work
+  },
+  // ...
+]
+
+// Guestbook array — exported as `g`
+// Displayed on the /contact page as a high-score leaderboard
+[
+  {
+    initials, // string — three-character player tag, e.g. "AAA"
+    score,    // number — numeric score value, e.g. 999999
+    message,  // string — short guestbook message
+  },
+  // ...
+]
+```
+
+<Note>
+  The exports use short aliases for bundle size (`p`, `s`, `a`, `c`, `g`). When you import from `data/mockData.js` in a component, use those short names: `import { p as projects, s as skills } from '../data/mockData.js'`.
+</Note>
+
+## Building for Production
+
+When you are ready to deploy, run the Vite build:
+
+```bash
+npm run build
+```
+
+Vite compiles the app, applies Tailwind's purge pass to strip unused CSS, and outputs one HTML file per route into `pages/` alongside the hashed JS and CSS bundles in `assets/`. The entire output is a directory of static files — upload it to any static host (GitHub Pages, Netlify, Vercel, Cloudflare Pages, an S3 bucket, etc.) with no server configuration required.
+
+<Tip>
+  Each generated HTML file contains an inline script that sets `window.__STATIC_PAGE_ROUTE__` to its canonical path (e.g., `"/"` for `Home.html`, `"/projects"` for `Projects.html`). React reads this value on startup to immediately render the correct route, avoiding a flash of the home page on direct URL loads. You do not need to configure this — Vite handles it automatically at build time.
 </Tip>

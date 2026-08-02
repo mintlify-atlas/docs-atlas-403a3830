@@ -1,20 +1,82 @@
 ---
-title: "Introduction"
-description: "Welcome to your project"
+title: "Dev Mode Arcade: Retro Portfolio Docs"
+sidebarTitle: "Home"
+description: "Dev Mode Arcade is a React + Vite personal portfolio with a retro arcade aesthetic — CRT overlays, pixel fonts, neon glows, and Framer Motion transitions."
 ---
 
-Write a short description of your product here. What it does, who it's for, and what they can accomplish with it.
+Dev Mode Arcade is a single-page application portfolio that turns a developer's professional presence into an arcade cabinet experience. Built with React 18, Vite, Framer Motion, and Tailwind CSS, every route is themed as a game screen — from a high-score contact guestbook to boss-fight case studies and coin-op skill displays.
 
-<Tip>
-  Ready to make this your own? Start by editing this page. Update your `docs.json` file to customize your site. Then fill out the [Quickstart](/quickstart) page.
-</Tip>
+<CardGroup cols={2}>
+  <Card title="Introduction" icon="gamepad" href="/introduction">
+    Learn what Dev Mode Arcade is, how it's structured, and what makes it tick.
+  </Card>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Clone, install, run locally, and customize your own arcade portfolio in minutes.
+  </Card>
+  <Card title="Project Structure" icon="folder-tree" href="/architecture/project-structure">
+    Explore the Vite build layout, component directories, and static HTML routing.
+  </Card>
+  <Card title="Design Tokens" icon="palette" href="/reference/design-tokens">
+    Full reference for the arcade neon color palette and Tailwind CSS custom tokens.
+  </Card>
+</CardGroup>
 
-<Card title="Quickstart" icon="rocket" href="/quickstart">
-  This card links to the quickstart page in your project.
-</Card>
-<Card title="Components" icon="puzzle-piece" href="https://mintlify.com/docs/components">
-  Add cards, callouts, steps, tabs, and more to design and structure your pages.
-</Card>
-<Card title="Settings" icon="gear" href="https://mintlify.com/docs/organize/settings">
-  Set your site name, branding, and navigation in the `docs.json` file.
-</Card>
+## What's Inside
+
+Dev Mode Arcade ships seven themed screens, three reusable UI primitives, a custom animation system, and a static-hosting-friendly Vite build.
+
+<CardGroup cols={3}>
+  <Card title="ArcadeButton" icon="hand-pointer" href="/components/arcade-button">
+    Animated Framer Motion button with four neon color variants and glow effects.
+  </Card>
+  <Card title="CRT Overlay" icon="tv" href="/components/crt-overlay">
+    Fixed scanline + vignette layer that gives every screen its retro CRT look.
+  </Card>
+  <Card title="Page Transition" icon="film" href="/components/page-transition">
+    Framer Motion wrapper that plays a brightness-flicker effect between routes.
+  </Card>
+  <Card title="Arcade UI Components" icon="shapes" href="/components/home">
+    All seven page components documented with props and customization notes.
+  </Card>
+  <Card title="Animations" icon="wand-magic-sparkles" href="/reference/animations">
+    CSS keyframes and Framer Motion patterns used across the portfolio.
+  </Card>
+  <Card title="Customization" icon="screwdriver-wrench" href="/reference/customization">
+    Swap out projects, skills, writing, and personal bio to make it your own.
+  </Card>
+</CardGroup>
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | React 18 |
+| Build tool | Vite |
+| Routing | React Router v6 (hash-based) |
+| Animation | Framer Motion |
+| Styling | Tailwind CSS + custom utilities |
+| Fonts | VT323 (pixel) · JetBrains Mono |
+| Deployment | Static HTML per route |
+
+<Steps>
+  <Step title="Clone the repository">
+    ```bash
+    git clone https://github.com/apursley2012/dev-mode-arcade.git
+    cd dev-mode-arcade
+    ```
+  </Step>
+  <Step title="Install dependencies">
+    ```bash
+    npm install
+    ```
+  </Step>
+  <Step title="Start the dev server">
+    ```bash
+    npm run dev
+    ```
+    Open `http://localhost:5173` to see the arcade in action.
+  </Step>
+  <Step title="Personalize your data">
+    Edit `data/mockData.js` to replace projects, skills, articles, and contact guestbook entries with your own content.
+  </Step>
+</Steps>

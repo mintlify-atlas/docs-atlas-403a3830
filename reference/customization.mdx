@@ -1,0 +1,259 @@
+---
+title: "Customization Guide — Dev Mode Arcade Portfolio"
+sidebarTitle: "Customization"
+description: "Step-by-step guide to replacing placeholder data, updating your About page, and restyling Dev Mode Arcade to make the portfolio your own."
+---
+
+Dev Mode Arcade ships with a complete set of placeholder content so the entire site looks great out of the box. Making it yours is a matter of editing one file — `data/mockData.js` — for almost everything, with a handful of direct component edits for the hardcoded About page copy. This guide walks through every section in order so you can go from demo to deployed personal portfolio in a single session.
+
+<Note>
+  All data changes live in `data/mockData.js`. See the [Mock Data reference](/reference/mock-data) for the complete schema of every export before you start editing.
+</Note>
+
+---
+
+<Steps>
+
+### Step 1: Update your projects
+
+The `p` export (the `Projects` array) is the first thing visitors see. Replace each placeholder entry with a real project from your own work.
+
+**Before — placeholder entry:**
+
+```js
+{
+  id: "proj-1",
+  title: "Neon Nexus",
+  genre: "React / Three.js",
+  players: "Solo",
+  year: "2025",
+  description: "A 3D data visualization dashboard for tracking server metrics in real-time.",
+  color: "purple"
+}
+```
+
+**After — your real project:**
+
+```js
+{
+  id: "proj-1",
+  title: "My Actual Project",
+  genre: "Next.js / Prisma",
+  players: "Solo",
+  year: "2025",
+  description: "A full-stack SaaS app for managing freelance invoices with PDF export.",
+  color: "cyan"
+}
+```
+
+**Field-by-field guide:**
+
+| Field | What to put here |
+|---|---|
+| `id` | Any unique string — keep the `"proj-N"` pattern or use a slug |
+| `title` | Your project's name |
+| `genre` | The primary tech stack, styled as an arcade genre tag |
+| `players` | `"Solo"` if you built it alone, `"Team"` if it was collaborative |
+| `year` | The year you finished or launched it |
+| `description` | One punchy sentence that explains what it does |
+| `color` | The glow accent color for the cabinet card |
+
+<Warning>
+  The `color` field must be exactly one of `"purple"`, `"lime"`, `"magenta"`, or `"cyan"`. These are the four arcade accent colors defined in the design tokens. Any other value will render without a glow effect.
+</Warning>
+
+You can add as many projects as you like — remove the placeholders and add your own entries. There is no enforced maximum, but four to six entries look best on the grid layout.
+
+### Step 2: Update your skills
+
+The `s` export is an object with three category arrays: `frontend`, `backend`, and `tooling`. Edit each array to match your actual skill set.
+
+**Adding a new skill:**
+
+```js
+// Add to the appropriate category array
+{ name: "GraphQL", level: "Level 72", desc: "Schema design and Apollo Client integration." }
+```
+
+**Removing a skill** — delete the object from the array:
+
+```js
+// Before
+backend: [
+  { name: "Node.js",    level: "Level 80", desc: "Event-driven server logic and API design." },
+  { name: "PostgreSQL", level: "Level 70", desc: "Relational data modeling and complex queries." },
+  { name: "Redis",      level: "Level 60", desc: "Caching and pub/sub for real-time features." }
+]
+
+// After — Redis removed, Go added
+backend: [
+  { name: "Node.js",    level: "Level 80", desc: "Event-driven server logic and API design." },
+  { name: "PostgreSQL", level: "Level 70", desc: "Relational data modeling and complex queries." },
+  { name: "Go",         level: "Level 55", desc: "Concurrent microservices and CLI tools." }
+]
+```
+
+**Writing arcade-style level strings:**
+
+The `level` field is a plain display string — it is never parsed as a number. The convention is `"Level <integer>"` to match the retro RPG aesthetic, but you can use any value you like:
+
+| Value | When to use |
+|---|---|
+| `"Level 99"` | Expert — your strongest skill |
+| `"Level 70–85"` | Proficient — you reach for this regularly |
+| `"Level 40–65"` | Competent — you can use it but still look things up |
+| `"MAX"` | When 99 isn't enough |
+| `"Still Learning"` | Honest mode |
+
+<Tip>
+  The skill circles display only the `name` field at rest. The full `desc` string appears on hover as a tooltip. Keep `name` short (one or two words) and use `desc` for context and personality.
+</Tip>
+
+**Renaming a category** is not supported via data alone — the three keys `frontend`, `backend`, and `tooling` are read directly by the Skills component. To add a fourth category (e.g. `"design"`), you would also need to update the component to render it.
+
+### Step 3: Update the About page
+
+The About page content is **hardcoded inside the component** rather than sourced from `mockData.js`. You will need to edit the source component directly.
+
+The fields to update are:
+
+| Field | Description | Example |
+|---|---|---|
+| `CLASS` | Your developer archetype or title | `"Full-Stack Engineer"` |
+| `XP` | Years of experience (or a fun equivalent) | `"7 Years"` |
+| `GUILD` | Your current employer, team, or status | `"Freelance"` |
+| `PREVIOUS LIVES` | Three prior roles or career highlights shown as log entries | `"Junior Dev @ StartupCo"` |
+
+<Tip>
+  In the production build, the About page component is the `nm` function in `assets/main.js`. If you are working from source, look for the About page component file — search for the string `"PREVIOUS LIVES"` or `"CLASS"` in your component tree to find the exact location of these hardcoded strings.
+</Tip>
+
+Keep the `CLASS`, `XP`, and `GUILD` values short — they are displayed in a fixed-width stat panel styled like an RPG character sheet. Aim for under 20 characters each.
+
+### Step 4: Add writing articles
+
+The `a` export drives the Writing page's instruction-manual layout. Add your own articles — blog posts, writeups, or devlogs — as entries in the array.
+
+```js
+// Add a new article entry
+{
+  id:      "art-4",
+  chapter: "04",
+  title:   "Why I Switched to Bun",
+  type:    "TECHNICAL",
+  date:    "Jan 2026",
+  excerpt: "Benchmarking Bun vs Node for a high-traffic API and living to tell the tale."
+}
+```
+
+**How `chapter` works:**
+
+The `chapter` field is a display-only string — it appears on the left spine of each entry. It is not validated or enforced as a sequential integer, so you have full control:
+
+- Use `"01"`, `"02"`, `"03"` for a clean numbered series
+- Use `"A1"`, `"B2"` for organized sub-series
+- Reuse numbers if two posts belong to the same conceptual chapter
+
+**Built-in article types and custom ones:**
+
+| `type` value | Intended use |
+|---|---|
+| `"REFLECTION"` | Opinion pieces, lessons learned, career thoughts |
+| `"TECHNICAL"` | How-to posts, architecture decisions, comparisons |
+| `"BUG REPORT"` | War stories, post-mortems, debugging sagas |
+| Any uppercase string | Custom categories — `"TUTORIAL"`, `"DEEP DIVE"`, `"HOT TAKE"` |
+
+The badge rendered on each entry uses the `type` string directly, so keep custom values short and uppercase for visual consistency.
+
+### Step 5: Add a case study
+
+The `c` export uses a boss-fight narrative structure to turn a project challenge into a compelling story. Edit the existing entry or add new ones.
+
+```js
+{
+  id:       "cs-2",
+  title:    "Project: Zero to Launch",
+  boss:     "The Blank Canvas",
+  problem:  "A client needed a production-ready SaaS from scratch in six weeks with a team of two.",
+  strategy: "T-shaped sprint plan — auth and billing first, feature work after. Shipped an MVP on week four.",
+  combos: [
+    "Next.js App Router",
+    "Clerk for authentication",
+    "Stripe subscriptions",
+    "Vercel edge deployment"
+  ],
+  victory:  "Launched on schedule. First paying customer within 48 hours of go-live.",
+  bonus:    "Client renewed contract for Phase 2 — mobile app in React Native."
+}
+```
+
+**Boss-fight framing guide:**
+
+| Field | Narrative role | Tips |
+|---|---|---|
+| `boss` | The antagonist — the core challenge given a name | Be dramatic: `"The Legacy Monolith"`, `"The Impossible Deadline"` |
+| `problem` | The opening crawl — what was broken or missing | Lead with the pain. Numbers help: "12-second load time" |
+| `strategy` | Your game plan — the high-level approach | Name the pattern or methodology if there was one |
+| `combos` | Special moves — specific tools and techniques | Keep each item to a short phrase |
+| `victory` | The win screen — measurable outcomes | Quantify wherever possible: load times, conversion rates, team size |
+| `bonus` | Post-credits scene — what came next | Optional, but great for showing momentum |
+
+<Warning>
+  Currently, the Case Studies page renders only the **first entry** in the `c` array (`c[0]`). If you add multiple case studies, only the first will be displayed until the component is updated to support pagination or a list view.
+</Warning>
+
+### Step 6: Customize guestbook seed data
+
+The `g` export pre-populates the leaderboard sidebar on the Contact page. These entries set the tone before any real visitors sign the guestbook, so make them yours.
+
+```js
+export const g = [
+  { initials: "YOU", score: 999999, message: "Your name here — make it count." },
+  { initials: "MOM", score: 500000, message: "Very proud of you sweetie" },
+  { initials: "H4X", score: 1337,   message: "Nice CSS." },
+  { initials: "DOG", score: 100,    message: "Woof." }
+];
+```
+
+**Rules for valid entries:**
+
+| Field | Constraint | Notes |
+|---|---|---|
+| `initials` | Max 3 characters | Classic arcade score style — `"AAA"`, `"H4X"`, `"YOU"` |
+| `score` | Integer, `0` to `999999` | Displayed left-padded to 6 digits: `001337` |
+| `message` | Any string | Keep it short — the sidebar column is narrow |
+
+<Tip>
+  Sort entries by `score` in descending order to match the classic arcade high-score table convention. The component renders them in array order, so the sort is yours to control.
+</Tip>
+
+### Step 7: Branding and colors
+
+The four arcade accent colors — `purple`, `lime`, `magenta`, and `cyan` — are defined as CSS custom properties and mapped in the Tailwind theme. To change or extend the palette, update those definitions in one place and every component that references them will update automatically.
+
+**Where the tokens live:**
+
+Refer to the [Design Tokens reference](/reference/design-tokens) for the complete list of CSS variables and Tailwind theme keys. The primary color definitions control glow effects, border accents, badge backgrounds, and skill circle fills.
+
+**Changing the primary accent color:**
+
+If you want to shift the overall site tone — for example, replacing `purple` as the default hero accent with a custom brand color — update the corresponding `--color-purple` CSS variable and its Tailwind alias in `tailwind.config.js`. Everything that uses `color: "purple"` in the data will inherit the change.
+
+**Typography:**
+
+Dev Mode Arcade loads two typefaces from Google Fonts:
+
+| Font | Usage |
+|---|---|
+| **VT323** | Pixel display headings, score readouts, badge labels |
+| **JetBrains Mono** | Body text, code-style labels, stat values |
+
+To swap fonts, update the `<link>` tags in `index.html` and replace the font-family references in your CSS. See the [Typography reference](/reference/typography) for the full font stack documentation.
+
+</Steps>
+
+---
+
+<Note>
+  For the complete list of design tokens — colors, spacing, glow intensities, and animation easing values — see the [Design Tokens reference](/reference/design-tokens). For an overview of how the project is structured and where each file lives, see the [Project Structure guide](/architecture/project-structure).
+</Note>

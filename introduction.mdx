@@ -1,0 +1,114 @@
+---
+title: "Dev Mode Arcade: Retro Portfolio for Developers"
+sidebarTitle: "Introduction"
+description: "Dev Mode Arcade is a React + Vite personal portfolio with a retro arcade cabinet theme — CRT scanlines, neon glow, pixel fonts, and Framer Motion animations."
+---
+
+Dev Mode Arcade is a retro arcade-themed React single-page application built for developers who want their personal portfolio to feel like a playable experience. This page covers what the project is, what it includes out of the box, the technologies that power it, and how its architecture fits together — giving you everything you need before diving into the code.
+
+## What Is Dev Mode Arcade?
+
+Most developer portfolios are static résumés dressed in CSS. Dev Mode Arcade flips that script: every page is styled to evoke the warm glow of a 1980s CRT monitor, navigation feels like inserting a coin, and project cards look like game cabinet marquees. Beneath the aesthetic, it is a fully production-ready React SPA with hash-based routing, Framer Motion transitions, and a single central data file you can swap out in minutes to make it your own.
+
+The portfolio covers seven distinct sections — home, projects, about, skills, writing, case studies, and contact — each rendered as a static HTML file by Vite's build pipeline so the whole site deploys anywhere that can serve flat files.
+
+<Note>
+  All content — projects, skills, articles, case studies, and guestbook entries — lives in a single file: `data/mockData.js`. You only need to edit that one file to personalise the entire portfolio. See the [Data Layer](/architecture/data-layer) guide and the [Mock Data reference](/reference/mock-data) for details.
+</Note>
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Retro Arcade Theme" icon="gamepad" href="/reference/design-tokens">
+    Dark background (`#0a0510`), four neon accent colors (purple, lime, cyan, magenta), VT323 pixel font, and CRT scanline overlay — all implemented with Tailwind CSS custom design tokens.
+  </Card>
+  <Card title="Framer Motion Transitions" icon="film" href="/reference/animations">
+    Every page enters and exits with a brightness/contrast/grayscale flicker effect via `PageTransition`. `ArcadeButton` responds to hover and tap with spring-physics scale animations.
+  </Card>
+  <Card title="ArcadeButton Component" icon="circle-dot" href="/components/arcade-button">
+    A reusable button with four color variants (purple, lime, magenta, cyan), neon box-glow on hover, and full Framer Motion spring animations — no extra configuration needed.
+  </Card>
+  <Card title="CRT Overlay" icon="tv" href="/components/crt-overlay">
+    A fixed, pointer-events-none overlay rendering animated scanlines, a moving light sweep, and a radial vignette — applied globally so every page feels like it's on real hardware.
+  </Card>
+  <Card title="Hash-Based Routing" icon="route" href="/architecture/routing">
+    React Router v6 configured with `HashRouter` so all seven routes work correctly whether the site is hosted on GitHub Pages, Netlify, or a plain CDN with no server rewrites.
+  </Card>
+  <Card title="Vite Static Build" icon="bolt" href="/quickstart">
+    Vite generates a pre-rendered HTML file per route (Home, Projects, About, Skills, Writing, Case Studies, Contact) and injects `window.__STATIC_PAGE_ROUTE__` for client-side hydration.
+  </Card>
+  <Card title="Single Data File" icon="database" href="/reference/mock-data">
+    All portfolio content (projects, skills, articles, case studies, guestbook) is exported from `data/mockData.js`. Swap the data, redeploy — done.
+  </Card>
+  <Card title="Responsive Layout" icon="mobile-screen" href="/architecture/project-structure">
+    Tailwind's responsive grid utilities (`md:grid-cols-2`, `lg:grid-cols-3`) ensure the arcade aesthetic scales cleanly from mobile to widescreen without custom media query files.
+  </Card>
+</CardGroup>
+
+## Tech Stack
+
+| Layer | Technology | Version |
+|---|---|---|
+| UI framework | React | 18 |
+| Build tool | Vite | latest |
+| Routing | React Router | v6 (HashRouter) |
+| Animation | Framer Motion | latest |
+| Styling | Tailwind CSS | latest |
+| Pixel font | VT323 | Google Fonts |
+| Monospace font | JetBrains Mono | Google Fonts |
+| Language | JavaScript (JSX) | ES2020+ |
+
+## Architecture Overview
+
+Dev Mode Arcade is a **client-side single-page application** built on React 18 and bundled by Vite. Here is a condensed map of how the pieces connect:
+
+```
+index.html                  ← entry point, sets window.__STATIC_PAGE_ROUTE__
+└── main.js                 ← React root mount, HashRouter wrapper
+    ├── CRTOverlay          ← fixed global scanline/vignette layer (z-50)
+    ├── PageTransition      ← Framer Motion enter/exit per route
+    └── Routes
+        ├── /               → pages/Home.html
+        ├── /projects       → pages/Projects.html
+        ├── /about          → pages/About.html
+        ├── /skills         → pages/Skills.html
+        ├── /writing        → pages/Writing.html
+        ├── /case-studies   → pages/CaseStudies.html
+        └── /contact        → pages/Contact.html
+```
+
+### Single-Page Application
+
+The React app mounts into a single `<div id="root">` in `index.html`. React Router v6's `HashRouter` intercepts all URL changes at the `#` boundary, so no server-side routing configuration is ever needed.
+
+### Hash-Based Routing
+
+All navigation uses hash URLs (e.g., `/#/projects`). This means the server always serves the same `index.html` regardless of which route the user visits — the route resolution happens entirely in the browser. On initial load, the inline script in `index.html` redirects bare paths to their hash equivalents automatically.
+
+### Vite Static Build
+
+Running `npm run build` produces one HTML file per route in `pages/` (e.g., `pages/Home.html`, `pages/Projects.html`). Each file has `window.__STATIC_PAGE_ROUTE__` pre-set to its canonical path so the React app can hydrate to the correct route without waiting for a hash change event.
+
+### Design Tokens
+
+All neon colors are defined as Tailwind custom tokens in the CSS output and used consistently across every component:
+
+| Token | Hex | Usage |
+|---|---|---|
+| `arcade-bg` | `#0a0510` | Page background |
+| `arcade-mid` | `#1a0a2e` | Card and panel backgrounds |
+| `arcade-purple` | `#b026ff` | Primary accent, scrollbar, focus rings |
+| `arcade-lime` | `#39ff14` | Secondary accent, selection highlight |
+| `arcade-cyan` | `#00f0ff` | Tertiary accent |
+| `arcade-magenta` | `#ff10f0` | Quaternary accent |
+| `arcade-text` | `#f0e6ff` | Body text |
+
+<Tip>
+  The neon glow effects (`text-glow-purple`, `box-glow-lime`, etc.) are custom Tailwind utilities defined in `assets/main.css`. They use layered `text-shadow` and `box-shadow` values at 5 px, 10 px, and 20 px radii to simulate phosphor bloom. See the [Design Tokens](/reference/design-tokens) reference for the full list.
+</Tip>
+
+## Next Steps
+
+Ready to run the portfolio locally? Head to the [Quickstart](/quickstart) to clone the repo, install dependencies, and launch the dev server in under five minutes.
+
+For a deeper look at how the project is organised on disk, see the [Project Structure](/architecture/project-structure) guide. To understand how page transitions work, read the [Animations](/reference/animations) reference.

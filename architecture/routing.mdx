@@ -1,0 +1,153 @@
+---
+title: "Dev Mode Arcade: Hash-Based Routing with React Router v6"
+sidebarTitle: "Routing"
+description: "How Dev Mode Arcade uses React Router v6 HashRouter, per-route static HTML files, and the __STATIC_PAGE_ROUTE__ global to work on any static host."
+---
+
+Dev Mode Arcade uses React Router v6 with `HashRouter` — a routing strategy that encodes the active path in the URL hash (the `#` portion) rather than the URL pathname. Because hash fragments are never sent to the server, this lets the entire app run on any static file host without requiring server-side rewrite rules.
+
+## Why HashRouter?
+
+Standard `BrowserRouter` routes like `/about` require the server to return the same `index.html` for every URL under the domain. On static hosts (GitHub Pages, Netlify in static mode, S3, etc.) an unrecognised path like `/skills` typically returns a 404.
+
+`HashRouter` sidesteps this entirely. The server always serves a real HTML file for the pathname portion of the URL, and the hash fragment (`#/skills`) is handled entirely by React Router in the browser.
+
+```
+BrowserRouter:  https://devmodearcade.dev/about      ← server must handle /about
+HashRouter:     https://devmodearcade.dev/#/about     ← server only ever sees /
+```
+
+Dev Mode Arcade takes this one step further by providing a dedicated HTML file for every route, so even a direct browser navigation to `pages/About.html` lands on the correct page without relying on a catch-all fallback.
+
+## The `__STATIC_PAGE_ROUTE__` global
+
+Each HTML file sets a global variable before the React bundle loads:
+
+```js
+window.__STATIC_PAGE_ROUTE__ = "/about";
+```
+
+When `main.js` initialises `HashRouter`, it reads this value to know which route is "expected" for the current document. If the URL hash is missing or bare, the inline script redirects to add it.
+
+### Hash-redirect script (verbatim from `index.html`)
+
+```js
+window.__STATIC_PAGE_ROUTE__ = "/";
+
+(function () {
+  if (!window.location.hash || window.location.hash === "#") {
+    window.location.replace(
+      window.location.pathname +
+      window.location.search +
+      "#/"
+    );
+  }
+})();
+```
+
+The same pattern appears in every `pages/*.html` file, with the route string changed to match:
+
+| HTML file | `__STATIC_PAGE_ROUTE__` value | Hash redirect target |
+|---|---|---|
+| `index.html` | `/` | `#/` |
+| `pages/Home.html` | `/` | `#/` |
+| `pages/About.html` | `/about` | `#/about` |
+| `pages/Projects.html` | `/projects` | `#/projects` |
+| `pages/Skills.html` | `/skills` | `#/skills` |
+| `pages/Writing.html` | `/writing` | `#/writing` |
+| `pages/CaseStudies.html` | `/case-studies` | `#/case-studies` |
+| `pages/Contact.html` | `/contact` | `#/contact` |
+
+<Note>
+The redirect uses `window.location.replace()` (not `assign()`), so the bare URL is removed from the browser's history stack. Pressing Back after a direct-navigation load will not cycle through the un-hashed URL.
+</Note>
+
+## All application routes
+
+The React app inside `main.js` defines the following routes. Each one corresponds to a themed screen in the arcade metaphor:
+
+| Route | Arcade theme | Description |
+|---|---|---|
+| `/` | Hero screen / title card | Landing screen with animated intro and primary CTA buttons |
+| `/projects` | Game cartridges | Portfolio projects displayed as retro game cartridge cards |
+| `/about` | Character bio / player select | Developer background, role, and personal stats |
+| `/skills` | Control panel | Skill tree broken into frontend, backend, and tooling categories |
+| `/writing` | Instruction manuals | Articles and technical writing displayed as game manuals |
+| `/case-studies` | Boss fight | In-depth case studies framed as defeating a legacy-system antagonist |
+| `/contact` | Guestbook / high score | Contact form styled as an arcade high-score entry screen |
+
+## Navigation flow
+
+When a user clicks an in-app link, React Router updates the hash fragment and re-renders without a page load. The `PageTransition` wrapper animates the outgoing and incoming screens using Framer Motion's `AnimatePresence`:
+
+```
+User clicks "Projects"
+        │
+        ▼
+React Router updates URL → /#/projects
+        │
+        ▼
+AnimatePresence triggers exit animation on current page
+        │
+        ▼
+PageTransition mounts /projects with entry animation
+(brightness flash → normal, opacity 0 → 1)
+```
+
+For direct navigation (typing a URL, opening a bookmark, or a server-delivered link), the flow goes through the static HTML layer first:
+
+```
+Browser loads pages/Projects.html
+        │
+        ├─ Inline script sets window.__STATIC_PAGE_ROUTE__ = "/projects"
+        ├─ Hash redirect fires: URL becomes pages/Projects.html#/projects
+        └─ main.js mounts → HashRouter reads #/projects → renders Projects
+```
+
+## Page transition behaviour
+
+`PageTransition` wraps every route component and applies a CRT-style power-cycle effect using Framer Motion filters:
+
+```js
+// components/layout/PageTransition.js (decompiled)
+const PageTransition = ({ children }) =>
+  <motion.div
+    initial={{ opacity: 0, filter: "brightness(2) contrast(2) grayscale(1)" }}
+    animate={{ opacity: 1, filter: "brightness(1) contrast(1) grayscale(0)" }}
+    exit={{   opacity: 0, filter: "brightness(2) contrast(2) grayscale(1)" }}
+    transition={{ duration: 0.3, ease: "easeOut" }}
+    className="min-h-screen w-full flex flex-col"
+  >
+    {children}
+  </motion.div>
+```
+
+Entry and exit are mirror images — the screen flares white-bright and desaturates as it powers off, then blooms in from bright and colourless on entry.
+
+## Adding a new route
+
+To add a new route (for example `/timeline`), you would need to make changes in three places:
+
+1. **Create the static HTML file** — copy any existing `pages/*.html`, update the `<title>`, and change `__STATIC_PAGE_ROUTE__` to `"/timeline"`.
+
+2. **Register the route in the React app** — add a `<Route path="/timeline" element={<Timeline />} />` entry in the router configuration inside the source project before re-building with Vite.
+
+3. **Add data** — if the route needs content, extend `data/mockData.js` with the appropriate export (see [Data Layer](/architecture/data-layer)).
+
+<Tip>
+Because the app is served from pre-built files, you will need to run the Vite build after any source changes. The static HTML files in `pages/` and the bundles in `assets/` are the build artefacts — they do not auto-update when source files change.
+</Tip>
+
+## Route–component–theme reference
+
+| Route | Component | Arcade theme | Primary accent |
+|---|---|---|---|
+| `/` | `<Home>` | Title screen | Lime (`arcade-lime`) |
+| `/projects` | `<Projects>` | Game cartridges | Purple / multi-colour |
+| `/about` | `<About>` | Character select | Cyan (`arcade-cyan`) |
+| `/skills` | `<Skills>` | Control panel | Magenta (`arcade-magenta`) |
+| `/writing` | `<Writing>` | Instruction manuals | Lime (`arcade-lime`) |
+| `/case-studies` | `<CaseStudies>` | Boss fight | Magenta (`arcade-magenta`) |
+| `/contact` | `<Contact>` | High-score guestbook | Cyan (`arcade-cyan`) |
+
+Accent colours are drawn from the design token set defined in `assets/main.css`. See [Design Tokens](/reference/design-tokens) for the full colour palette.

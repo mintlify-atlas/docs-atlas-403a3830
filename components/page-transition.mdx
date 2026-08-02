@@ -1,0 +1,159 @@
+---
+title: "PageTransition: CRT Power-On Route Animation"
+sidebarTitle: "Page Transition"
+description: "A Framer Motion wrapper that animates route changes with a CRT power-on brightness spike and grayscale flash, lasting 300ms per direction."
+---
+
+`PageTransition` wraps each page's content in a `motion.div` that plays a short CRT power-on effect whenever a route is entered or exited. On enter, brightness and contrast spike and the image is momentarily desaturated — mimicking the flash of a phosphor display warming up. The animation resolves in 300ms, keeping navigation snappy while still giving every page change a tactile, physical quality. It is designed to work in tandem with Framer Motion's `AnimatePresence` and React Router's `Routes`.
+
+## Props
+
+<ParamField path="children" type="ReactNode" required>
+  The page content to animate. `PageTransition` renders a full-height (`min-h-screen w-full flex flex-col`) wrapper, so children should fill naturally without needing to set their own height. Pass any JSX — layout components, sections, or an entire page tree.
+</ParamField>
+
+## Animation
+
+The transition is driven entirely by CSS `filter` property interpolation. There are no opacity-fade crossfades or sliding panels — the effect is purely a brightness/contrast/grayscale spike that collapses to normal values as the page settles in.
+
+### Animation spec
+
+| Phase | `opacity` | `brightness` | `contrast` | `grayscale` |
+|---|---|---|---|---|
+| `initial` (before enter) | `0` | `2` | `2` | `1` (100%) |
+| `animate` (fully visible) | `1` | `1` | `1` | `0` (0%) |
+| `exit` (leaving) | `0` | `2` | `2` | `1` (100%) |
+
+The `initial` and `exit` states are identical — the page always flashes in and flashes out with the same CRT effect, giving route changes a symmetric, consistent feel.
+
+### Transition config
+
+```
+duration: 0.3
+ease: "easeOut"
+```
+
+`easeOut` front-loads the motion, so the brightness spike resolves quickly at the start and gently settles at the end — matching the decay curve of a real phosphor display.
+
+## Usage
+
+### With React Router and AnimatePresence
+
+`AnimatePresence` from Framer Motion is **required** to trigger the `exit` animation before the outgoing component unmounts. Without it, the exit filter effect will never play and route changes will cut hard.
+
+```jsx
+import { AnimatePresence } from 'framer-motion'
+import { PageTransition } from './components/layout/PageTransition'
+import { useLocation } from 'react-router-dom'
+
+function AnimatedRoutes() {
+  const location = useLocation()
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={
+          <PageTransition>
+            <HomePage />
+          </PageTransition>
+        } />
+        <Route path="/projects" element={
+          <PageTransition>
+            <ProjectsPage />
+          </PageTransition>
+        } />
+        <Route path="/about" element={
+          <PageTransition>
+            <AboutPage />
+          </PageTransition>
+        } />
+      </Routes>
+    </AnimatePresence>
+  )
+}
+```
+
+<Note>
+  Pass `mode="wait"` to `AnimatePresence` so the outgoing page fully exits (completing its exit filter animation) before the incoming page begins its enter animation. Without `mode="wait"`, both animations run simultaneously and the CRT effect loses its power-cycle rhythm.
+</Note>
+
+### Key prop pattern
+
+The `key={location.pathname}` on `Routes` is what tells React to unmount the old route component and mount a new one on each navigation. Framer Motion detects the unmount and triggers `AnimatePresence`'s exit sequence. Without it, navigating between routes at the same component tree depth won't trigger a re-mount, and the animation won't replay.
+
+```jsx
+// ✅ Correct — key changes on every route change
+<Routes location={location} key={location.pathname}>
+
+// ❌ Wrong — React reuses the same component instance, no animation
+<Routes>
+```
+
+### Wrapping a single page
+
+If you only need the animation on one page (e.g. a landing page), you can use `PageTransition` standalone without `AnimatePresence`. The enter animation will still play on first mount — only the exit animation requires `AnimatePresence`.
+
+```jsx
+import { PageTransition } from './components/layout/PageTransition'
+
+export default function HomePage() {
+  return (
+    <PageTransition>
+      <main className="px-8 py-16">
+        <h1>DEV MODE ARCADE</h1>
+      </main>
+    </PageTransition>
+  )
+}
+```
+
+## Layout Behavior
+
+The `motion.div` rendered by `PageTransition` applies these layout classes:
+
+```
+min-h-screen w-full flex flex-col
+```
+
+| Class | Effect |
+|---|---|
+| `min-h-screen` | Ensures the wrapper always fills at least the full viewport height |
+| `w-full` | Stretches to the full width of its containing block |
+| `flex flex-col` | Allows children to use `flex-grow` for sticky footers and full-height layouts |
+
+<Tip>
+  If a page inside `PageTransition` appears to overflow vertically or create unexpected scroll, check whether the page's own wrapper is also setting `min-h-screen`. Double-stacked `min-h-screen` elements can add extra height — remove the inner one and let `PageTransition` own the height.
+</Tip>
+
+## How the CRT Effect Works
+
+The animation targets the CSS `filter` property with three simultaneous sub-filters:
+
+**`brightness(2)`** — doubles the luminosity of all pixels, washing the screen out to near-white. Combined with the dark arcade background, this creates a sharp flare.
+
+**`contrast(2)`** — doubles the difference between light and dark values during the brightness spike, making the flash feel harsher and more abrupt.
+
+**`grayscale(1)`** — fully desaturates the image during the spike, stripping the neon colors away. As the animation eases out, saturation is restored and the arcade palette bleeds back in — this is the most visually distinctive part of the effect and the closest analogue to a phosphor tube coming up to temperature.
+
+All three filters animate simultaneously via Framer Motion's `filter` interpolation, which handles the compound `filter` string as a single animated value.
+
+<Note>
+  The filter animation is GPU-accelerated in modern browsers via the compositor. On low-power devices or browsers that don't accelerate `filter`, the 300ms duration is short enough that even a software-rendered fallback should not cause visible jank.
+</Note>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="CRT Overlay" icon="tv" href="/components/crt-overlay">
+    The fixed scanline and vignette layer rendered above all content including page transitions.
+  </Card>
+  <Card title="ArcadeButton" icon="gamepad-2" href="/components/arcade-button">
+    Pixel-font neon buttons used as navigation triggers that lead to page transitions.
+  </Card>
+  <Card title="Animations Reference" icon="sparkles" href="/reference/animations">
+    Full reference for all Framer Motion variants and CSS keyframes in the project.
+  </Card>
+  <Card title="Architecture: Routing" icon="route" href="/architecture/routing">
+    How React Router and AnimatePresence are wired together at the app level.
+  </Card>
+</CardGroup>

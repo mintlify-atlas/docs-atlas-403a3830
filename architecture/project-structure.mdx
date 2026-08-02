@@ -1,0 +1,139 @@
+---
+title: "Dev Mode Arcade: Understanding the Project Structure"
+sidebarTitle: "Project Structure"
+description: "A guided tour of the Dev Mode Arcade repository — every top-level directory, pre-built bundle, and static HTML file explained in one place."
+---
+
+Dev Mode Arcade ships as a fully pre-built static site. There is no source compilation step required at runtime — Vite has already transformed every React component, Tailwind rule, and Framer Motion animation into minified bundles that load directly in the browser. Understanding the file tree is the fastest way to orient yourself before touching any part of the project.
+
+## Annotated directory tree
+
+```bash
+dev-mode-arcade/
+├── index.html                  # Root entry point — serves the "/" route
+├── useScreenInit.js            # Bundled React 18 + ReactDOM initialisation
+├── canvas.manifest.js          # Vite asset manifest (chunk hashes & entry map)
+│
+├── pages/                      # One HTML file per non-root route
+│   ├── Home.html               # /  (duplicate entry for direct navigation)
+│   ├── About.html              # /about
+│   ├── Projects.html           # /projects
+│   ├── Skills.html             # /skills
+│   ├── Writing.html            # /writing
+│   ├── CaseStudies.html        # /case-studies
+│   └── Contact.html            # /contact
+│
+├── components/
+│   ├── arcade/
+│   │   ├── ArcadeButton.js     # Reusable neon button with color variants
+│   │   └── CRTOverlay.js       # Full-screen scanline + vignette effect
+│   └── layout/
+│       └── PageTransition.js   # Framer Motion route-change wrapper
+│
+├── data/
+│   └── mockData.js             # All portfolio content (projects, skills, etc.)
+│
+└── assets/                     # Vite build output — do not edit manually
+    ├── main.js                 # Bundled React application (router + all pages)
+    ├── main.css                # Compiled Tailwind CSS output
+    ├── jsx-runtime.js          # React JSX transform runtime
+    └── proxy.js                # Framer Motion re-export shim
+```
+
+## Top-level files
+
+### `index.html`
+
+The browser's first entry point for the `/` route. It preloads every JS module, links the compiled stylesheet, and runs an inline `<script>` block that sets `window.__STATIC_PAGE_ROUTE__ = "/"` and redirects bare visits to the hash equivalent (`#/`). Every other HTML file in the project follows the same pattern, differing only in the route value.
+
+### `useScreenInit.js`
+
+A bundled module that exports React 18 (`r`) and the full React namespace (`R`). Shared by every component module through named re-exports so the runtime is loaded exactly once, regardless of how many components import it.
+
+### `canvas.manifest.js`
+
+The Vite asset manifest, which maps original source entry names to their hashed output filenames. Hosting platforms and cache-busting tooling read this file to resolve the correct bundle URLs at deployment time.
+
+## `pages/` — per-route static HTML
+
+Each file in `pages/` is a self-contained HTML document for one route. They are structurally identical to `index.html` with two differences:
+
+1. Asset paths use `../assets/` (one level up) instead of `./assets/`.
+2. The inline script sets a different `window.__STATIC_PAGE_ROUTE__` value matching the route it serves.
+
+When a user navigates directly to `/about`, the server delivers `pages/About.html`. The inline script detects the missing hash fragment and immediately redirects to `pages/About.html#/about`, which tells the React Router `HashRouter` which route to render.
+
+<Note>
+The `pages/Home.html` file is a secondary entry for the `/` route. It exists so that a server configured to serve `pages/` as a directory can still resolve the home route without falling back to `index.html`.
+</Note>
+
+## `components/arcade/`
+
+Shared UI primitives that carry the arcade aesthetic throughout the app.
+
+| File | Export | Purpose |
+|---|---|---|
+| `ArcadeButton.js` | `A` | Animated neon button — accepts `color`, `label`, `glow`, and any `<button>` prop |
+| `CRTOverlay.js` | `C` | Fixed, pointer-events-none overlay rendering scanlines and a radial vignette |
+
+Both files are pre-built ES modules. They import from `../../assets/jsx-runtime.js` and `../../assets/proxy.js` using relative paths so they resolve correctly whether loaded from the root or from inside `pages/`.
+
+## `components/layout/`
+
+| File | Export | Purpose |
+|---|---|---|
+| `PageTransition.js` | `P` | Wraps page content in a Framer Motion `div` that fades + adjusts brightness on route entry and exit |
+
+The transition uses `initial`, `animate`, and `exit` props with a `brightness`/`contrast`/`grayscale` CSS filter sequence to simulate an old CRT powering on.
+
+## `data/mockData.js`
+
+The single source of truth for every piece of portfolio content. The file is a minified ES module with five named exports:
+
+| Export | Alias | Content |
+|---|---|---|
+| `p` | projects | Array of `Project` objects |
+| `s` | skills | Object with `frontend`, `backend`, and `tooling` arrays |
+| `a` | articles | Array of writing `Article` objects |
+| `c` | caseStudies | Array of `CaseStudy` objects |
+| `g` | guestbook | Array of `GuestEntry` objects |
+
+See [Data Layer](/architecture/data-layer) for full type signatures and examples.
+
+## `assets/` — Vite build output
+
+These four files are the entire compiled application. They are **not** meant to be edited by hand — all logic lives in their un-minified source counterparts before the build step.
+
+| File | Role |
+|---|---|
+| `main.js` | Full React app: router, all page components, hooks, utilities |
+| `main.css` | Tailwind CSS compiled output including custom arcade tokens |
+| `jsx-runtime.js` | React 17+ JSX transform (`jsx`, `jsxs`, `Fragment`) |
+| `proxy.js` | Re-exports Framer Motion (`MotionConfig`, `useAnimation`, `motion`, etc.) |
+
+<Tip>
+If you're inspecting `main.js` to understand how a specific page component works, search for the `__STATIC_PAGE_ROUTE__` string — the router reads this global to decide which route to activate on first render.
+</Tip>
+
+## How the pieces connect
+
+```
+Browser requests /about
+        │
+        ▼
+pages/About.html is served
+        │
+        ├─ Sets window.__STATIC_PAGE_ROUTE__ = "/about"
+        ├─ Hash-redirect script fires → URL becomes /about#/about
+        ├─ <script src="../assets/main.js"> loads the React app
+        │         │
+        │         ├─ Imports useScreenInit.js  (React runtime)
+        │         ├─ Imports data/mockData.js  (portfolio content)
+        │         ├─ Imports components/arcade/CRTOverlay.js
+        │         ├─ Imports components/layout/PageTransition.js
+        │         └─ Imports components/arcade/ArcadeButton.js
+        │
+        └─ HashRouter reads #/about → renders <About> page component
+```
+
+Every dependency is declared as a `<link rel="modulepreload">` in each HTML file, so the browser fetches all modules in parallel before `main.js` even begins to execute.

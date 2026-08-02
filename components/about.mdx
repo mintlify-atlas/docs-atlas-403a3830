@@ -1,0 +1,138 @@
+---
+title: "About Page: Character Bio & Developer Backstory"
+sidebarTitle: "About"
+description: "The About page is a static character sheet with class stats, a three-entry career log styled as terminal files, and an active Current Quest section."
+---
+
+The About page renders a classic RPG character sheet to introduce the developer behind the portfolio. Rather than a standard bio paragraph, the screen presents the developer's identity through game mechanics — a class, an XP total, and a guild status sit in a stats card beside a pixel avatar placeholder. The right column documents the developer's career history as a series of terminal log files under the heading **PREVIOUS LIVES**, and the bottom of the page describes the current focus as a **CURRENT QUEST** mission brief. All content on this page is hardcoded in the component — there is no external data source.
+
+## Route
+
+| Property | Value |
+|---|---|
+| Path | `/about` |
+| File (compiled) | `assets/main.js` — `AboutPage` component |
+| Data export | None — fully static |
+| Theme colors | `arcade-lime` · `arcade-purple` |
+| Screen title | **CHARACTER BIO** |
+
+## Layout
+
+The page uses a two-column layout on desktop, collapsing to a single column on mobile.
+
+| Column | Contents |
+|---|---|
+| Left | Pixel avatar placeholder + stats card |
+| Right | **PREVIOUS LIVES** — three career log entries |
+| Full width (bottom) | **CURRENT QUEST** — mission brief section |
+
+## Left Column — Avatar & Stats
+
+The avatar is a pixel-art placeholder block containing a large `?` character with a lime glow effect. It is intentionally a placeholder — developers are encouraged to swap it with an actual image or custom pixel sprite.
+
+The stats card below the avatar displays three hardcoded character attributes:
+
+| Stat | Value |
+|---|---|
+| CLASS | Front-End Witch |
+| XP | 3+ Years |
+| GUILD | Available |
+
+These labels render in `VT323` pixel font with `arcade-lime` color for the stat keys and `arcade-purple` for the values.
+
+<Note>
+  The stats card values — CLASS, XP, and GUILD — are hardcoded strings in the component JSX. To personalize them, locate the stat block in the source and update the string literals directly. There is no data file driving this section.
+</Note>
+
+## Right Column — PREVIOUS LIVES
+
+The **PREVIOUS LIVES** section presents the developer's career history as three terminal log files. Each entry is styled as a monospace file listing with a filename, a timestamp, and a short description.
+
+| Filename | Career Phase | Notes |
+|---|---|---|
+| `NURSING_STUDENT.log` | Academic / healthcare background | Previous field before tech |
+| `RETAIL_LEAD.log` | Leadership role in retail | Management and ops experience |
+| `DEV_AWAKENING.exe` | Career pivot to development | The moment the developer switched to tech |
+
+The `.log` and `.exe` extensions are purely aesthetic — they signal file types that match the phase (logs for past chapters, an executable for the active career transformation).
+
+```jsx
+// Example log entry markup pattern
+<div className="font-mono text-arcade-lime">
+  <span className="text-arcade-purple">▶</span> NURSING_STUDENT.log
+  <p className="text-sm text-gray-400 mt-1">
+    Two years of anatomy, pharmacology, and high-stakes
+    decision-making before discovering React.
+  </p>
+</div>
+```
+
+## Bottom Section — CURRENT QUEST
+
+The **CURRENT QUEST** section spans the full page width below the two-column block. It reads as an in-progress mission briefing — describing what the developer is currently working toward, available for, or building. The content is a short prose paragraph hardcoded in the component.
+
+<Tip>
+  Update the CURRENT QUEST text to reflect your actual availability and focus. Common use cases: job search status, open-source contributions, freelance availability, or a major ongoing project. Keep it to two or three sentences for the best layout balance.
+</Tip>
+
+## Replacing the Avatar
+
+The `?` placeholder avatar is a styled `div`. To replace it with a real image:
+
+```jsx
+// Replace the placeholder block with an img element
+<img
+  src="/assets/avatar.png"
+  alt="Developer avatar"
+  className="w-32 h-32 rounded pixel-border border-arcade-lime"
+/>
+```
+
+Place your image in the `public/assets/` directory so Vite includes it in the static build output.
+
+## Customization Summary
+
+| Element | How to Update |
+|---|---|
+| Avatar | Replace placeholder `div` with `<img>` pointing to your image |
+| CLASS stat | Edit the string literal in the stats card JSX |
+| XP stat | Update years of experience string |
+| GUILD stat | Change availability status (`Available`, `Employed`, etc.) |
+| PREVIOUS LIVES entries | Edit filename and description strings in the JSX array |
+| CURRENT QUEST text | Update the prose paragraph in the bottom section |
+
+## Data Shape
+
+The About page is fully static and does not consume any data from `mockData.js`. If you want to drive the character stats or career log from a data file in the future, the recommended approach is to define a `developer` object in `mockData.js`:
+
+```ts
+// Suggested type if you move About content to mockData.js
+type DeveloperProfile = {
+  name: string;
+  class: string;
+  xp: string;
+  guild: string;
+  previousLives: Array<{
+    filename: string;   // e.g. "NURSING_STUDENT.log"
+    description: string;
+  }>;
+  currentQuest: string;
+};
+```
+
+## Related Pages
+
+<CardGroup cols={2}>
+  <Card title="Skills" icon="gamepad" href="/components/skills">
+    The Control Panel page that displays technical skill levels as coin-op buttons.
+  </Card>
+  <Card title="Home" icon="house" href="/components/home">
+    The attract screen hero that links back to the About route via ArcadeButton.
+  </Card>
+  <Card title="Customization Guide" icon="screwdriver-wrench" href="/reference/customization">
+    Full walkthrough for personalizing all static and dynamic content.
+  </Card>
+  <Card title="Typography" icon="font" href="/reference/typography">
+    VT323 and JetBrains Mono usage for pixel stat labels and log file entries.
+  </Card>
+</CardGroup>

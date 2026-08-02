@@ -1,0 +1,275 @@
+---
+title: "Animations Reference — Dev Mode Arcade Motion System"
+sidebarTitle: "Animations"
+description: "Full reference for every CSS keyframe animation and Framer Motion pattern used in Dev Mode Arcade, including timing, easing, and reduced-motion guidance."
+---
+
+Dev Mode Arcade's motion design splits across two layers: **CSS keyframe animations** declared in `main.css` for ambient, always-on effects like flickering text and scrolling scanlines, and **Framer Motion** declarative animations wired into React components for entrance transitions, hover interactions, and scroll-triggered reveals. This page documents every animation in both layers with timing values, usage notes, and performance guidance.
+
+---
+
+## CSS Keyframe Animations
+
+All CSS animations are exposed as Tailwind utility classes using the `animate-` prefix. They are defined in `main.css` and compiled into the Tailwind output.
+
+### `animate-flicker`
+
+Simulates an unstable neon sign or aging CRT tube by pulsing opacity between full brightness and 40% at precise irregular intervals.
+
+| Property | Value |
+|---|---|
+| Duration | `3s` |
+| Timing function | `linear` |
+| Iteration | `infinite` |
+| Utility class | `animate-flicker` |
+
+**Keyframe breakdown:**
+
+| Keyframe position | Opacity |
+|---|---|
+| `0%` | `1.0` |
+| `19.999%` | `1.0` |
+| `20%` | `0.4` |
+| `21.999%` | `0.4` |
+| `22%` | `1.0` |
+| `62.999%` | `1.0` |
+| `63%` | `0.4` |
+| `63.999%` | `0.4` |
+| `64%` | `1.0` |
+| `64.999%` | `1.0` |
+| `65%` | `0.4` |
+| `69.999%` | `0.4` |
+| `70%` | `1.0` |
+| `100%` | `1.0` |
+
+The long stretches of `opacity: 1` punctuated by sharp double-dip flickers model the erratic discharge pattern of real fluorescent and neon lighting. Apply to headings or logo elements that should feel like they're "on the fritz."
+
+```css
+@keyframes flicker {
+  0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, to { opacity: 1; }
+  20%, 21.999%, 63%, 63.999%, 65%, 69.999%         { opacity: .4; }
+}
+```
+
+### `animate-flicker-fast`
+
+The same flicker keyframes running at `0.5s` instead of `3s`. Use for elements that should appear severely damaged or urgently pulsing — boss-fight health bars, error states, or dramatic reveal moments.
+
+| Property | Value |
+|---|---|
+| Duration | `0.5s` |
+| Timing function | `linear` |
+| Iteration | `infinite` |
+| Utility class | `animate-flicker-fast` |
+
+### `animate-scanline`
+
+Drives the moving bright scan bar that sweeps down the CRT Overlay component, emulating the electron beam that refreshes a real cathode-ray tube.
+
+| Property | Value |
+|---|---|
+| Duration | `8s` |
+| Timing function | `linear` |
+| Iteration | `infinite` |
+| Utility class | `animate-scanline` |
+
+```css
+@keyframes scanline {
+  0%  { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+```
+
+The element using this animation is positioned `fixed` and spans the full viewport height, traveling from `-100%` to `+100%` on the Y axis over 8 seconds. The `linear` easing keeps the sweep speed constant, matching the uniform refresh rate of a CRT. See [CRT Overlay](/components/crt-overlay) for the component implementation.
+
+### `animate-pulse`
+
+Tailwind's built-in pulse animation, used for loading skeleton states and subtle ambient breathing effects.
+
+| Property | Value |
+|---|---|
+| Duration | `2s` |
+| Timing function | `cubic-bezier(0.4, 0, 0.6, 1)` |
+| Iteration | `infinite` |
+| Utility class | `animate-pulse` |
+
+```css
+@keyframes pulse {
+  50% { opacity: 0.5; }
+}
+```
+
+---
+
+## Framer Motion Patterns
+
+[Framer Motion](https://www.framer.com/motion/) handles all interactive and scroll-triggered animations. The table below summarises every component and its motion spec.
+
+| Component | Trigger | `initial` | `animate` / `whileInView` / `whileHover` | Duration / Easing |
+|---|---|---|---|---|
+| `ArcadeButton` | Hover | — | `scale: 1.05` | Spring (default) |
+| `ArcadeButton` | Tap | — | `scale: 0.95` | Spring (default) |
+| `PageTransition` | Mount | `brightness(2) contrast(2) grayscale(1)` | `brightness(1) contrast(1) grayscale(0)` | `0.3s easeOut` |
+| Projects grid items | Scroll into view | `opacity: 0, y: 20` | `opacity: 1, y: 0` | Default spring |
+| Skills items | Scroll into view | `opacity: 0, scale: 0.8` | `opacity: 1, scale: 1` | Default spring |
+| Writing manuals | Mount | `opacity: 0, y: -50` | `opacity: 1, y: 0` | Spring |
+| Writing manuals | Hover | — | `y: -20, rotate: -2` | Spring |
+| HP bars | Scroll into view | `width: 0` | `width: "{percentage}%"` | `1s easeOut` |
+| Contact form items | Mount | `opacity: 0, x: 20` | `opacity: 1, x: 0` | Default spring |
+
+### Page Transition
+
+The [`PageTransition`](/components/page-transition) component wraps every route with a filter-based flash that mimics a CRT powering on — briefly overexposed, desaturated, then snapping to full color.
+
+```js
+// PageTransition animation props
+const pageVariants = {
+  initial: {
+    filter: "brightness(2) contrast(2) grayscale(1)",
+  },
+  animate: {
+    filter: "brightness(1) contrast(1) grayscale(0)",
+    transition: {
+      duration: 0.3,
+      ease: "easeOut",
+    },
+  },
+};
+```
+
+The `filter` property is GPU-composited in modern browsers, keeping this transition off the main thread.
+
+### `whileInView` Scroll Pattern
+
+Projects and Skills sections use Framer Motion's `whileInView` to animate items in as they enter the viewport. The pattern reads as: start invisible and slightly offset → become fully visible and settled.
+
+```js
+// Projects grid item
+<motion.div
+  initial={{ opacity: 0, y: 20 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true }}
+>
+  {/* card content */}
+</motion.div>
+
+// Skills item
+<motion.div
+  initial={{ opacity: 0, scale: 0.8 }}
+  whileInView={{ opacity: 1, scale: 1 }}
+  viewport={{ once: true }}
+>
+  {/* skill badge */}
+</motion.div>
+```
+
+`viewport={{ once: true }}` ensures the animation fires once on first entry rather than replaying every time the element scrolls in and out.
+
+### Spring Animation — Writing Manuals
+
+The Writing section's instruction-manual cards use a spring physics model for both mount and hover, giving them a satisfying tactile snap:
+
+```js
+// Writing manual card
+<motion.div
+  initial={{ opacity: 0, y: -50 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ type: "spring" }}
+  whileHover={{ y: -20, rotate: -2 }}
+>
+  {/* manual card */}
+</motion.div>
+```
+
+The `y: -20, rotate: -2` hover state makes the card lift and tilt slightly, as if a real booklet is being picked up from a shelf.
+
+### HP Bar Width Animation
+
+Skill HP bars animate their width from `0` to the actual percentage value as they scroll into view, reinforcing the RPG stat-screen metaphor:
+
+```js
+<motion.div
+  className="h-2 bg-arcade-lime"
+  initial={{ width: 0 }}
+  whileInView={{ width: `${percentage}%` }}
+  transition={{ duration: 1, ease: "easeOut" }}
+  viewport={{ once: true }}
+/>
+```
+
+See [Skills](/components/skills) for the full HP bar component implementation.
+
+---
+
+## Performance Notes
+
+All Framer Motion animations in Dev Mode Arcade are constrained to **GPU-composited properties**:
+
+- **`opacity`** — composited; zero layout or paint cost
+- **`scale`** — composited via `transform`
+- **`translateY` / `translateX`** — composited via `transform`
+- **`rotate`** — composited via `transform`
+- **`filter`** (PageTransition) — composited on most modern browsers
+
+The `width` animation on HP bars is the one exception — animating `width` triggers layout recalculation. If you have many HP bars simultaneously in view, consider switching to `scaleX` on a `transform-origin: left` element for a fully composited alternative.
+
+CSS animations in `main.css` (`flicker`, `scanline`) use `opacity` and `transform` exclusively, keeping them off the main thread as well. The `.transform-gpu` Tailwind utility (`transform: translate3d(...)`) is applied where needed to force GPU layer promotion.
+
+---
+
+## Disabling Animations (Reduced Motion)
+
+Users who have enabled **Reduce Motion** in their OS accessibility settings expect animations to be suppressed or toned down. Add the following to `main.css` to respect the `prefers-reduced-motion` media query:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  /* Disable CSS keyframe animations */
+  .animate-flicker,
+  .animate-flicker-fast,
+  .animate-scanline,
+  .animate-pulse {
+    animation: none;
+  }
+
+  /* Ensure elements remain visible when flicker is removed */
+  .animate-flicker,
+  .animate-flicker-fast {
+    opacity: 1;
+  }
+}
+```
+
+For Framer Motion, wrap all animation values in the `useReducedMotion` hook:
+
+```js
+import { useReducedMotion } from "framer-motion";
+
+function AnimatedCard() {
+  const prefersReduced = useReducedMotion();
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: prefersReduced ? 0 : 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+    >
+      {/* content */}
+    </motion.div>
+  );
+}
+```
+
+<Note>
+  The WCAG 2.1 Success Criterion 2.3.3 (Animation from Interactions) recommends that motion triggered by user interaction can be disabled. Implementing `prefers-reduced-motion` support is strongly advised before deploying to production.
+</Note>
+
+---
+
+## Related
+
+- [Design Tokens](/reference/design-tokens) — color palette and glow utilities used alongside animations
+- [Typography](/reference/typography) — font classes used on flickering headings
+- [CRT Overlay](/components/crt-overlay) — component that consumes `animate-scanline` and `scanlines-bg`
+- [Page Transition](/components/page-transition) — the filter-flash route transition component
+- [Projects](/components/projects) — scroll-triggered grid animation in context
+- [Skills](/components/skills) — HP bar width animation in context

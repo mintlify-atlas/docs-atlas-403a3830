@@ -1,0 +1,77 @@
+{
+  "projectType": "frontend",
+  "projectName": "Dev Mode Arcade",
+  "projectDescription": "A retro arcade-themed personal developer portfolio built with React, Vite, and Framer Motion, featuring CRT effects, pixel fonts, and neon glow aesthetics.",
+  "theme": "luma",
+  "primaryColor": "#b026ff",
+  "lightColor": "#39ff14",
+  "darkColor": "#0a0510",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Overview",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["introduction", "quickstart"]
+          },
+          {
+            "group": "Architecture",
+            "pages": ["architecture/project-structure", "architecture/routing", "architecture/data-layer"]
+          }
+        ]
+      },
+      {
+        "tab": "Components",
+        "groups": [
+          {
+            "group": "Arcade UI",
+            "pages": ["components/arcade-button", "components/crt-overlay", "components/page-transition"]
+          },
+          {
+            "group": "Pages",
+            "pages": ["components/home", "components/projects", "components/about", "components/skills", "components/writing", "components/case-studies", "components/contact"]
+          }
+        ]
+      },
+      {
+        "tab": "Reference",
+        "groups": [
+          {
+            "group": "Styling",
+            "pages": ["reference/design-tokens", "reference/animations", "reference/typography"]
+          },
+          {
+            "group": "Data",
+            "pages": ["reference/mock-data", "reference/customization"]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Retro arcade cabinet aesthetic with CRT scanline overlay",
+    "Neon glow color palette: purple, lime, cyan, and magenta",
+    "Pixel font (VT323) and monospace (JetBrains Mono) typography system",
+    "Framer Motion page transitions with brightness/contrast flicker effect",
+    "Animated ArcadeButton component with per-color glow variants",
+    "React Router SPA with hash-based routing for static hosting",
+    "Skills presented as arcade cabinet coin-op displays with hover tooltips",
+    "Projects shown as arcade game cartridges with genre and player count metadata",
+    "Writing section styled as vintage instruction manuals",
+    "Case studies framed as boss fight replays with HP progress bars",
+    "Contact page as a retro high-score guestbook leaderboard",
+    "Vite build with static per-route HTML files for SEO-friendly deployment"
+  ],
+  "publicApiSurface": [
+    "ArcadeButton({ color, label, glow, className, ...motionProps })",
+    "CRTOverlay()",
+    "PageTransition({ children })",
+    "mockData: projects (p), skills (s), articles (a), caseStudies (c), guestbook (g)",
+    "Routes: /, /projects, /about, /skills, /writing, /case-studies, /contact",
+    "CSS custom utilities: text-glow-{color}, box-glow-{color}, scanlines-bg, animate-flicker, animate-scanline",
+    "Tailwind theme tokens: arcade-bg, arcade-mid, arcade-text, arcade-purple, arcade-lime, arcade-cyan, arcade-magenta",
+    "useScreenInit (React + screen initialization module)",
+    "window.__STATIC_PAGE_ROUTE__ (static routing signal for per-page HTML files)"
+  ]
+}

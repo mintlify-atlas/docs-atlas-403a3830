@@ -1,0 +1,207 @@
+---
+title: "Design Tokens — Dev Mode Arcade Color System"
+sidebarTitle: "Design Tokens"
+description: "Complete reference for the Dev Mode Arcade color palette, neon glow utilities, scanlines, scrollbar styling, and selection overrides built on Tailwind CSS."
+---
+
+Dev Mode Arcade's visual identity is built on a tightly controlled set of custom design tokens — deep purple-blacks, four vivid neon accents, and a suite of glow utilities — all wired directly into Tailwind as custom color extensions and CSS utility classes. This page documents every token, how each one maps to a Tailwind class, and shows real usage patterns from across the portfolio.
+
+## Color Palette
+
+All colors are registered as custom Tailwind theme extensions. Use them like any built-in color: `text-arcade-purple`, `bg-arcade-mid`, `border-arcade-cyan`, etc. Opacity modifiers (`/50`, `/80`, etc.) work on all tokens.
+
+| Token | Hex | Tailwind Class | Usage |
+|---|---|---|---|
+| `arcade-bg` | `#0a0510` | `bg-arcade-bg` | Deep purple-black page background |
+| `arcade-mid` | `#1a0a2e` | `bg-arcade-mid` | Card, panel, and input backgrounds |
+| `arcade-text` | `#f0e6ff` | `text-arcade-text` | Primary body text (light lavender) |
+| `arcade-purple` | `#b026ff` | `text-arcade-purple` | Primary accent — borders, glows, headings |
+| `arcade-lime` | `#39ff14` | `text-arcade-lime` | Secondary accent — success states, CTAs |
+| `arcade-cyan` | `#00f0ff` | `text-arcade-cyan` | Info accent — labels, metadata, tag chips |
+| `arcade-magenta` | `#ff10f0` | `text-arcade-magenta` | Warning / dramatic accent — boss-fight moments |
+
+### Using Opacity Modifiers
+
+Tailwind's slash opacity syntax works on every token. The CSS output confirms these variants are used throughout the project:
+
+```html
+<!-- 80% opacity body text -->
+<p class="text-arcade-text/80">Faded paragraph copy</p>
+
+<!-- Semi-transparent panel overlay -->
+<div class="bg-arcade-mid/50">Translucent card</div>
+
+<!-- Subtle border hint -->
+<div class="border border-arcade-purple/30">Soft bordered container</div>
+```
+
+<Tip>
+  `arcade-bg` is also set as the default `body` `background-color` in `main.css`, so the page background is always correct even before React mounts.
+</Tip>
+
+---
+
+## Glow Utilities
+
+Neon glow effects are the signature detail of the arcade aesthetic. Two families of utilities are defined — **text glow** (using `text-shadow`) and **box glow** (using `box-shadow` with an inset layer) — each in four accent colors. Hover variants are also available.
+
+### Text Glow
+
+Apply to any text element to simulate phosphor-screen luminance.
+
+| Class | CSS `text-shadow` value |
+|---|---|
+| `.text-glow-purple` | `0 0 5px #b026ff, 0 0 10px #b026ff, 0 0 20px #b026ff` |
+| `.text-glow-lime` | `0 0 5px #39ff14, 0 0 10px #39ff14, 0 0 20px #39ff14` |
+| `.text-glow-magenta` | `0 0 5px #ff10f0, 0 0 10px #ff10f0, 0 0 20px #ff10f0` |
+| `.text-glow-cyan` | `0 0 5px #00f0ff, 0 0 10px #00f0ff, 0 0 20px #00f0ff` |
+
+The three shadow layers (5 px, 10 px, 20 px) at identical `x/y 0` offsets build up a convincing diffusion halo around the letterforms.
+
+### Box Glow
+
+Apply to bordered containers to create an illuminated-panel look. The inset shadow reinforces the glow *inside* the element as well as outside.
+
+| Class | CSS `box-shadow` value |
+|---|---|
+| `.box-glow-purple` | `0 0 10px #b026ff, inset 0 0 10px #b026ff` |
+| `.box-glow-lime` | `0 0 10px #39ff14, inset 0 0 10px #39ff14` |
+| `.box-glow-magenta` | `0 0 10px #ff10f0, inset 0 0 10px #ff10f0` |
+| `.box-glow-cyan` | `0 0 10px #00f0ff, inset 0 0 10px #00f0ff` |
+
+### Hover Variants
+
+Hover-state glow variants follow the same naming convention with a `hover:` prefix:
+
+```html
+<button class="border-2 border-arcade-purple hover:box-glow-purple transition">
+  HOVER ME
+</button>
+
+<a class="text-arcade-cyan hover:text-glow-cyan transition">
+  Link with hover glow
+</a>
+```
+
+Focus variants are also defined: `focus:box-glow-lime` is used on form inputs to indicate keyboard focus.
+
+---
+
+## Usage Examples
+
+### Neon Heading
+
+```html
+<!-- Neon text -->
+<h1 class="font-pixel text-arcade-lime text-glow-lime">PLAYER ONE</h1>
+```
+
+### Glowing Panel
+
+```html
+<!-- Glowing panel -->
+<div class="bg-arcade-mid border-2 border-arcade-purple box-glow-purple">
+  Content
+</div>
+```
+
+### Full Token Composition
+
+```html
+<!-- Badge / tag chip -->
+<span class="
+  font-pixel text-sm text-arcade-cyan uppercase tracking-widest
+  border border-arcade-cyan/50 bg-arcade-mid/30 px-2 py-1
+  hover:text-glow-cyan transition
+">
+  REACT
+</span>
+
+<!-- CTA button -->
+<button class="
+  font-pixel text-xl text-arcade-bg uppercase tracking-widest
+  bg-arcade-lime border-2 border-arcade-lime
+  hover:box-glow-lime transition px-6 py-2
+">
+  INSERT COIN
+</button>
+```
+
+---
+
+## Scanlines Utility
+
+`.scanlines-bg` overlays a fine horizontal stripe pattern to simulate the CRT scanline effect. It is applied as a `position: fixed` overlay on top of all page content.
+
+```css
+.scanlines-bg {
+  background: linear-gradient(
+    to bottom,
+    transparent 50%,
+    rgba(0, 0, 0, 0.25) 50%
+  );
+  background-size: 100% 4px;
+}
+```
+
+The `4px` background-size means one transparent stripe and one dark stripe every 4 px, matching a vintage monitor's scanline pitch. See [CRT Overlay](/components/crt-overlay) for the React component that uses this class.
+
+---
+
+## Scrollbar Customization
+
+The WebKit scrollbar is fully reskinned to match the arcade theme using `::-webkit-scrollbar-*` pseudo-elements defined in `main.css`:
+
+```css
+/* Track */
+::-webkit-scrollbar       { width: 12px; }
+::-webkit-scrollbar-track { background: #0a0510; border-left: 1px solid #1a0a2e; }
+
+/* Thumb */
+::-webkit-scrollbar-thumb       { background: #1a0a2e; border: 1px solid #b026ff; }
+::-webkit-scrollbar-thumb:hover { background: #b026ff; }
+```
+
+| Part | Style |
+|---|---|
+| Track | `arcade-bg` fill with a 1 px `arcade-mid` left border |
+| Thumb (default) | `arcade-mid` fill with a 1 px `arcade-purple` border |
+| Thumb (hovered) | Solid `arcade-purple` fill — the thumb fully illuminates |
+
+<Note>
+  Firefox does not support `::-webkit-scrollbar` pseudo-elements. Firefox users will see the browser-default scrollbar. Add `scrollbar-color` and `scrollbar-width` CSS properties to extend coverage if needed.
+</Note>
+
+---
+
+## Selection Color
+
+Text selection is overridden globally to use arcade-lime on arcade-bg, creating a high-contrast highlight that matches the neon theme:
+
+```css
+::selection {
+  background: #39ff14; /* arcade-lime */
+  color:      #0a0510; /* arcade-bg   */
+}
+```
+
+The Tailwind utility classes `selection:bg-arcade-lime` and `selection:text-arcade-bg` are also defined for scoped use on specific elements.
+
+---
+
+## Tailwind Configuration Note
+
+These tokens are **not** defined in `tailwind.config.js` via the `theme.extend.colors` key in the traditional sense — they are registered as custom CSS classes in a plugin-style approach directly within `main.css`. The minified output confirms every `bg-arcade-*`, `text-arcade-*`, and `border-arcade-*` class is compiled and available as Tailwind utilities with full JIT support, including opacity modifiers and responsive prefixes.
+
+<Tip>
+  If you fork the project and want to change a brand color, update the hex value in every `main.css` rule for that token — or migrate the tokens into `tailwind.config.js` under `theme.extend.colors` for a single source of truth.
+</Tip>
+
+---
+
+## Related
+
+- [Animations](/reference/animations) — keyframe and Framer Motion animation reference
+- [Typography](/reference/typography) — font families, type scale, and text utility patterns
+- [CRT Overlay](/components/crt-overlay) — the scanline and vignette overlay component
+- [Customization](/reference/customization) — how to swap colors for your own palette

@@ -1,0 +1,254 @@
+---
+title: "Typography Reference — Dev Mode Arcade Type System"
+sidebarTitle: "Typography"
+description: "Font stacks, type scale, utility class patterns, and heading hierarchy for Dev Mode Arcade's two-family pixel and monospace typographic system."
+---
+
+Dev Mode Arcade's typography is built on exactly two font families: **VT323**, a bitmap pixel font that handles all UI chrome and headings, and **JetBrains Mono**, a variable-weight monospace face used for body copy and code-adjacent content. Together they create an aesthetic that reads like a developer's terminal crossed with a 1980s arcade cabinet marquee. This page documents every aspect of the type system — loading, sizing, spacing modifiers, and the conventions used across the portfolio.
+
+---
+
+## Font Stack Overview
+
+| Role | Family | Tailwind Class | Fallback |
+|---|---|---|---|
+| Headings, labels, buttons, UI chrome | VT323 | `font-pixel` | `monospace` |
+| Body text, code-style content, paragraphs | JetBrains Mono | `font-mono` | `monospace` |
+
+Both families share a `monospace` fallback, which preserves the fixed-width grid feel even if the Google Fonts request fails to resolve.
+
+---
+
+## Font Loading
+
+Both fonts are loaded via a single `@import` at the top of `main.css`, pointing to Google Fonts. The `display=swap` parameter ensures text renders in the fallback font immediately, swapping in the custom face once the download completes — no invisible text during load.
+
+```css
+@import "https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&family=VT323&display=swap";
+```
+
+**Variants loaded:**
+
+| Family | Weights / Styles |
+|---|---|
+| VT323 | 400 (the only weight the family offers) |
+| JetBrains Mono | 400 regular, 700 bold, 400 italic |
+
+<Note>
+  VT323 is a **bitmap pixel font** with a single weight. Bold variants simply render at the same weight — do not use `font-bold` on `font-pixel` elements expecting heavier strokes. Use size and color instead of weight to create hierarchy within pixel-font headings.
+</Note>
+
+The `font-pixel` and `font-mono` classes are registered in Tailwind and resolve to:
+
+```css
+.font-pixel { font-family: VT323, monospace; }
+.font-mono  { font-family: JetBrains Mono, monospace; }
+```
+
+---
+
+## VT323 — Pixel Font
+
+VT323 is used for **every element that belongs to the UI layer**: page headings, section titles, navigation labels, button text, chip labels, stat names, and any decorative arcade copy. Its pixelated bitmap geometry is the primary carrier of the retro aesthetic.
+
+### When to Use
+
+- All `<h1>` through `<h4>` headings
+- Button labels and CTA text
+- Metadata tags, genre chips, skill names
+- Navigation items and UI chrome
+- Decorative marquee or "attract mode" text
+
+### When NOT to Use
+
+- Long body paragraphs (readability degrades below `text-lg` at small viewport widths)
+- Form field values typed by the user
+- Code snippets or technical strings — use `font-mono` for those
+
+### VT323 Usage Examples
+
+```html
+<!-- Hero heading -->
+<h1 class="font-pixel text-6xl md:text-8xl text-arcade-lime text-glow-lime uppercase">
+  DEV MODE
+</h1>
+
+<!-- Section heading -->
+<h2 class="font-pixel text-4xl text-arcade-purple text-glow-purple">
+  SKILL TREE
+</h2>
+
+<!-- Sub-section heading -->
+<h3 class="font-pixel text-3xl text-arcade-magenta">
+  BOSS FIGHTS
+</h3>
+
+<!-- Button label -->
+<button class="font-pixel text-xl text-arcade-bg uppercase tracking-widest bg-arcade-lime px-6 py-2">
+  INSERT COIN
+</button>
+
+<!-- Metadata label / chip -->
+<span class="font-pixel text-sm text-arcade-cyan uppercase tracking-widest">
+  GENRE: React / Three.js
+</span>
+```
+
+---
+
+## JetBrains Mono — Monospace Body Font
+
+JetBrains Mono handles **all prose and code-adjacent content** — project descriptions, bio paragraphs, case study narratives, and form field labels. Its fixed-width columns keep the terminal-screen feel alive in longer text while remaining highly readable at small sizes.
+
+### When to Use
+
+- Body paragraphs and descriptive copy
+- Code snippets embedded in content
+- Form field text and placeholder copy
+- Supporting details under pixel-font headings
+
+### JetBrains Mono Usage Examples
+
+```html
+<!-- Body paragraph -->
+<p class="font-mono text-arcade-text/80 leading-relaxed">
+  Full-stack developer specializing in interactive React applications,
+  3D web experiences, and developer tooling. Currently available for
+  contract work.
+</p>
+
+<!-- Inline code label -->
+<code class="font-mono text-arcade-cyan text-sm bg-arcade-mid px-1 py-0.5 rounded-sm">
+  npm run dev
+</code>
+
+<!-- Form input -->
+<input
+  class="font-mono text-arcade-text bg-arcade-mid border border-arcade-purple/50 p-3 w-full"
+  placeholder="your@email.com"
+/>
+```
+
+---
+
+## Type Scale
+
+The project uses Tailwind's default type scale. The table below shows every size class used across the codebase, its computed CSS value, and where it appears in the UI.
+
+| Tailwind Class | Font Size | Line Height | Used For |
+|---|---|---|---|
+| `text-xs` | 0.75 rem (12 px) | 1 rem | Fine-print labels, decorative corner text |
+| `text-sm` | 0.875 rem (14 px) | 1.25 rem | Metadata chips, tag labels, captions |
+| `text-base` | 1 rem (16 px) | 1.5 rem | Default body (`md:text-base` on monospace) |
+| `text-lg` | 1.125 rem (18 px) | 1.75 rem | Prominent body copy, card descriptions |
+| `text-xl` | 1.25 rem (20 px) | 1.75 rem | Button labels, sub-headings |
+| `text-2xl` | 1.5 rem (24 px) | 2 rem | Card titles, panel headers |
+| `text-3xl` | 1.875 rem (30 px) | 2.25 rem | Section sub-headings (`<h3>`) |
+| `text-4xl` | 2.25 rem (36 px) | 2.5 rem | Section headings (`<h2>`) |
+| `text-5xl` | 3 rem (48 px) | 1 | Page headings (`<h1>` on mobile) |
+| `text-6xl` | 3.75 rem (60 px) | 1 | Large page headings |
+| `text-8xl` | 6 rem (96 px) | 1 | Hero display text (`md:text-8xl`) |
+
+<Tip>
+  Because VT323 is a pixel font with tight inherent spacing, `text-5xl` and above are where it truly shines — the individual pixel blocks become decorative at large sizes. For headings smaller than `text-3xl`, add `tracking-wide` to help letterforms breathe.
+</Tip>
+
+---
+
+## Spacing & Decoration Modifiers
+
+### Arcade Button Label Style
+
+The signature arcade button label combines uppercase transformation with maximum letter spacing. Both utilities together create the "insert coin" placard aesthetic:
+
+```html
+<button class="font-pixel text-xl uppercase tracking-widest text-arcade-bg bg-arcade-lime px-6 py-2">
+  START GAME
+</button>
+```
+
+| Utility | Effect |
+|---|---|
+| `uppercase` | `text-transform: uppercase` — all caps |
+| `tracking-widest` | `letter-spacing: 0.1em` — wide arcade spacing |
+
+### Line Height for Prose
+
+Body paragraphs use `leading-relaxed` (`line-height: 1.625`) to counter the naturally tight monospace rhythm:
+
+```html
+<p class="font-mono text-arcade-text/80 leading-relaxed">
+  Paragraph copy with comfortable reading rhythm.
+</p>
+```
+
+### Opacity Modifier Pattern
+
+The `/80` opacity modifier on `text-arcade-text` is the standard for body copy — it softens the bright lavender to a comfortable reading level without switching to a different token:
+
+| Class | Alpha | Use case |
+|---|---|---|
+| `text-arcade-text` | 100% | Headings, high-importance copy |
+| `text-arcade-text/90` | 90% | Prominent body text |
+| `text-arcade-text/80` | 80% | Standard body paragraphs |
+| `text-arcade-text/70` | 70% | Supporting / secondary copy |
+| `text-arcade-text/50` | 50% | Placeholder text, disabled states |
+
+---
+
+## Heading Hierarchy Example
+
+The following pattern shows the full heading hierarchy used within a typical section of the portfolio:
+
+```html
+<!-- Page heading -->
+<h1 class="font-pixel text-5xl text-arcade-lime text-glow-lime">
+  CHARACTER BIO
+</h1>
+
+<!-- Section heading -->
+<h2 class="font-pixel text-3xl text-arcade-magenta">PREVIOUS LIVES</h2>
+
+<!-- Body text -->
+<p class="font-mono text-arcade-text/80 leading-relaxed">
+  Body content here.
+</p>
+
+<!-- Label/metadata -->
+<span class="font-pixel text-sm text-arcade-cyan uppercase tracking-widest">
+  GENRE: React / Three.js
+</span>
+```
+
+**Key conventions illustrated above:**
+
+1. `font-pixel` on every heading, label, and UI element
+2. `font-mono` exclusively for prose
+3. Glow utilities (`text-glow-lime`, etc.) on hero-level headings only — overuse dilutes the effect
+4. `uppercase tracking-widest` on all metadata tags and button-like labels
+5. Opacity modifiers on body text, never on headings
+6. Each level uses a different accent color to create semantic color hierarchy: lime for primary page titles, magenta for section headings, cyan for metadata
+
+---
+
+## Responsive Typography
+
+The only responsive font override defined in the project scales the hero heading on the Home screen from `text-6xl` on mobile up to `text-8xl` on medium breakpoints and above:
+
+```html
+<h1 class="font-pixel text-6xl md:text-8xl text-arcade-lime text-glow-lime">
+  DEV MODE ARCADE
+</h1>
+```
+
+All other type sizes are static — the fixed-width nature of monospace fonts and the grid layout of the portfolio keep everything readable without additional breakpoint overrides.
+
+---
+
+## Related
+
+- [Design Tokens](/reference/design-tokens) — color classes and glow utilities used on type elements
+- [Animations](/reference/animations) — flicker and Framer Motion effects applied to headings
+- [Arcade Button](/components/arcade-button) — component that applies the full button label style
+- [Home](/components/home) — hero heading with `text-8xl` and `text-glow-lime`
+- [Customization](/reference/customization) — swapping fonts for a different aesthetic

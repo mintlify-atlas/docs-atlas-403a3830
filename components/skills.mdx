@@ -1,0 +1,197 @@
+---
+title: "Skills Page: Coin-Op Control Panel Skill Display"
+sidebarTitle: "Skills"
+description: "Three SkillCabinet sections — frontend, backend, and tooling. Each skill is a circular coin-op button with a hover tooltip showing its numeric level."
+---
+
+The Skills page transforms a traditional skills list into an arcade control panel. Three `SkillCabinet` sections — each styled as a different arcade cabinet — group the developer's technical abilities by category. Within each cabinet, individual skills are displayed as large circular coin-op buttons. Hovering over a button reveals a tooltip showing the skill's numeric level out of 100 and a short description. All skill data is drawn from the `skills` array in `data/mockData.js`, organized into frontend, backend, and tooling categories, each with its own cabinet color theme.
+
+## Route
+
+| Property | Value |
+|---|---|
+| Path | `/skills` |
+| File (compiled) | `assets/main.js` — `SkillsPage` component |
+| Data export | `skills` (exported as `s` from `mockData.js`) |
+| Theme colors | `arcade-lime` (frontend) · `arcade-purple` (backend) · `arcade-cyan` (tooling) |
+| Screen title | **CONTROL PANEL** |
+
+## What It Displays
+
+The page renders three `SkillCabinet` sections stacked vertically. Each cabinet has a colored heading and contains a row of circular buttons — one per skill.
+
+### Frontend Cabinet — Lime
+
+| Skill | Level |
+|---|---|
+| React | 99 |
+| TypeScript | 85 |
+| Tailwind CSS | 90 |
+| Framer Motion | 75 |
+
+### Backend Cabinet — Purple
+
+| Skill | Level |
+|---|---|
+| Node.js | 80 |
+| PostgreSQL | 70 |
+| Redis | 60 |
+
+### Tooling Cabinet — Cyan
+
+| Skill | Level |
+|---|---|
+| Git | 95 |
+| Docker | 65 |
+| Vite | 85 |
+
+## Animations
+
+Each `SkillCabinet` section uses Framer Motion's `whileInView` trigger with a `scale` animation. Buttons scale from `0.8` to `1.0` as they enter the viewport, staggered by `0.08 s` per item.
+
+```js
+// Approximate SkillCabinet button animation variant
+const skillButtonVariants = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.3, ease: "easeOut" },
+  },
+};
+
+// Stagger applied at the container level
+const cabinetVariants = {
+  hidden: {},
+  visible: {
+    transition: { staggerChildren: 0.08 },
+  },
+};
+```
+
+<Note>
+  The `whileInView` animation fires once per cabinet as it scrolls into view. The `once: true` viewport option prevents re-triggering on scroll back. Level tooltips are CSS-only and do not use Framer Motion.
+</Note>
+
+## Tooltip Behavior
+
+Hovering over a skill button reveals a floating tooltip anchored above the button. The tooltip displays:
+
+- **Skill name** — the same label shown on the button face
+- **Level** — a numeric value from 0–100 (e.g. `LVL 99`)
+- **Description** — a one-sentence note about proficiency or usage context
+
+Tooltips are styled with `bg-arcade-black`, `border-arcade-lime`, and `font-mono` text to match the cabinet aesthetic. They appear via a CSS `opacity` + `translateY` transition on hover.
+
+## Data Schema
+
+Each entry in the `skills` array must conform to the following shape:
+
+```ts
+type Skill = {
+  id: string;          // Unique identifier, used as React key
+  name: string;        // Display label on the button face
+  level: number;       // Proficiency level 0–100
+  description: string; // Tooltip description line
+  category: "frontend" | "backend" | "tooling"; // Cabinet assignment
+};
+```
+
+### Field Reference
+
+| Field | Type | Displayed As | Notes |
+|---|---|---|---|
+| `id` | `string` | Not displayed | Used as React list key |
+| `name` | `string` | Button face label | Keep short — max ~12 chars |
+| `level` | `number` | Tooltip `LVL <value>` | Integer 0–100 |
+| `description` | `string` | Tooltip body text | One sentence recommended |
+| `category` | `string` | Cabinet grouping | Must be one of three valid values |
+
+## Customization
+
+**Adding a new skill**
+
+Append a new entry to the `skills` array in `data/mockData.js`. The `category` field controls which cabinet it appears in.
+
+```js
+// data/mockData.js
+export const skills = [
+  // ... existing entries
+  {
+    id: "astro",
+    name: "Astro",
+    level: 70,
+    description: "Building content-driven sites with Astro's island architecture.",
+    category: "frontend",
+  },
+];
+```
+
+**Changing a skill level**
+
+Update the `level` field for the relevant skill entry. The level value affects only the tooltip display — there is no visual progress bar on the button face itself.
+
+**Adding a new cabinet category**
+
+The `SkillCabinet` component accepts a `color` prop. If you add a fourth category (e.g. `"design"`), you'll need to add a new `SkillCabinet` instance in `SkillsPage` and filter skills by the new category string.
+
+```jsx
+// Adding a fourth cabinet in SkillsPage
+<SkillCabinet
+  title="DESIGN"
+  color="magenta"
+  skills={skills.filter((s) => s.category === "design")}
+/>
+```
+
+<Tip>
+  Skill button labels render in `VT323` pixel font. Names longer than about 12 characters will wrap inside the circular button boundary. Keep skill names concise — abbreviate if needed (e.g. `TS` for TypeScript, `PG` for PostgreSQL).
+</Tip>
+
+## SkillCabinet Props
+
+The `SkillCabinet` component used on this page accepts the following props:
+
+| Prop | Type | Description |
+|---|---|---|
+| `title` | `string` | Cabinet section heading |
+| `color` | `"lime" \| "purple" \| "cyan" \| "magenta"` | Accent color for cabinet border and heading glow |
+| `skills` | `Skill[]` | Array of skill objects filtered to this cabinet |
+
+## Sample Data
+
+```js
+// Excerpt from data/mockData.js
+export const skills = [
+  // Frontend
+  { id: "react",   name: "React",         level: 99, description: "Primary framework for all UI work.",                     category: "frontend" },
+  { id: "ts",      name: "TypeScript",    level: 85, description: "Typed JavaScript for scalable codebases.",               category: "frontend" },
+  { id: "tw",      name: "Tailwind CSS",  level: 90, description: "Utility-first CSS for rapid UI development.",            category: "frontend" },
+  { id: "fm",      name: "Framer Motion", level: 75, description: "Animation library for React with spring physics.",       category: "frontend" },
+  // Backend
+  { id: "node",    name: "Node.js",       level: 80, description: "Server-side JS for APIs and tooling.",                   category: "backend"  },
+  { id: "pg",      name: "PostgreSQL",    level: 70, description: "Relational database for structured data.",               category: "backend"  },
+  { id: "redis",   name: "Redis",         level: 60, description: "In-memory store for caching and pub/sub.",               category: "backend"  },
+  // Tooling
+  { id: "git",     name: "Git",           level: 95, description: "Version control — branching, rebasing, and PRs.",        category: "tooling"  },
+  { id: "docker",  name: "Docker",        level: 65, description: "Containerized development and deployment workflows.",    category: "tooling"  },
+  { id: "vite",    name: "Vite",          level: 85, description: "Fast dev server and bundler powering this portfolio.",   category: "tooling"  },
+];
+```
+
+## Related Pages
+
+<CardGroup cols={2}>
+  <Card title="About" icon="user" href="/components/about">
+    The Character Bio page that pairs with Skills to present the full developer profile.
+  </Card>
+  <Card title="Mock Data Reference" icon="database" href="/reference/mock-data">
+    Full reference for all mockData.js exports including the skills array schema.
+  </Card>
+  <Card title="Design Tokens" icon="palette" href="/reference/design-tokens">
+    Cabinet color tokens — lime, purple, and cyan — used for section theming.
+  </Card>
+  <Card title="Animations" icon="wand-magic-sparkles" href="/reference/animations">
+    whileInView scale animation patterns used by the SkillCabinet sections.
+  </Card>
+</CardGroup>

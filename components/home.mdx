@@ -1,0 +1,131 @@
+---
+title: "Home Page: Arcade Hero Screen & Navigation"
+sidebarTitle: "Home"
+description: "Full-viewport attract screen with a neon INSERT COIN headline, developer tagline, and Framer Motion ArcadeButtons linking to all portfolio routes."
+---
+
+The Home page is the first thing visitors see when they land on Dev Mode Arcade. It functions as an attract screen, mimicking the idle loop of a classic arcade cabinet — a glowing "INSERT COIN" headline pulses in neon lime, a tagline introduces the developer, and a set of `ArcadeButton` components invite the player to explore each section of the portfolio. All entrance animations are driven by Framer Motion so the elements stagger in sequentially on mount.
+
+## Route
+
+| Property | Value |
+|---|---|
+| Path | `/` |
+| File (compiled) | `assets/main.js` — `HomePage` component |
+| Theme colors | `arcade-lime` · `arcade-purple` |
+
+## What It Displays
+
+The page is divided into two visual areas:
+
+**Hero block** — centered on the screen with a large pixel-font headline and the developer's tagline. The headline reads **"INSERT COIN"** and renders with a CSS neon text-shadow animation (`neon-flicker`). Beneath it sits the player name and a short bio string.
+
+**Navigation grid** — a set of `ArcadeButton` components arranged in a responsive grid. Each button routes the visitor to a different section of the portfolio. Button labels, colors, and target routes are hardcoded in the component but can be updated directly in the source.
+
+<Note>
+  The Home page contains **no dynamic data** from `mockData.js`. All text — the headline, tagline, player name, and button labels — is hardcoded in the component. To personalize it, edit the component source directly or expose the values as constants at the top of the file.
+</Note>
+
+## Key UI Elements
+
+| Element | Description |
+|---|---|
+| `INSERT COIN` headline | `VT323` pixel font, `arcade-lime` color, `neon-flicker` CSS animation |
+| Player name | Developer's display name, rendered below the headline |
+| Tagline | One-line bio or role descriptor |
+| `ArcadeButton` grid | Navigates to `/projects`, `/about`, `/skills`, `/writing`, `/case-studies`, `/contact` |
+| Background | Deep `arcade-black` (`#0a0510`) with subtle radial glow |
+| CRT Overlay | Global `CRTOverlay` component renders on top via the root layout |
+
+## Animations
+
+Home page elements animate in via a Framer Motion stagger sequence. The container variant staggers child elements by `0.15 s` with an initial opacity of `0` and a `y` offset of `24 px`.
+
+```js
+// Approximate Framer Motion variants used on the Home hero
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15, delayChildren: 0.2 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+};
+```
+
+<Tip>
+  To increase the dramatic entrance effect, raise `delayChildren` to `0.5` so the headline has a moment to appear alone before the navigation buttons follow. See [Animations](/reference/animations) for the full list of shared motion variants.
+</Tip>
+
+## Navigation Buttons
+
+Each `ArcadeButton` on the Home page maps to one portfolio route. The color variant is chosen to contrast with the deep purple background.
+
+| Button Label | Route | Color Variant |
+|---|---|---|
+| PROJECTS | `/projects` | `lime` |
+| ABOUT | `/about` | `purple` |
+| SKILLS | `/skills` | `cyan` |
+| WRITING | `/writing` | `magenta` |
+| CASE STUDIES | `/case-studies` | `magenta` |
+| CONTACT | `/contact` | `lime` |
+
+See [ArcadeButton](/components/arcade-button) for full props documentation on the button component.
+
+## Customization
+
+**Changing the headline or tagline**
+
+The headline (`INSERT COIN`) and tagline are string literals inside the `HomePage` component. Find the JSX block and update them directly:
+
+```jsx
+// Inside the HomePage component
+<h1 className="font-pixel text-arcade-lime text-6xl neon-text">
+  INSERT COIN
+</h1>
+<p className="font-mono text-arcade-purple text-xl mt-2">
+  PLAYER: Your Name Here — Front-End Witch
+</p>
+```
+
+**Changing button layout**
+
+The grid is a CSS Grid container. Adjust the `grid-cols-*` Tailwind class on the wrapping element to change how many buttons appear per row.
+
+**Removing or adding buttons**
+
+Add or remove `ArcadeButton` entries from the navigation array inside `HomePage`. Each entry needs a `label`, `to` (route path), and `color` prop.
+
+```jsx
+<ArcadeButton to="/projects" color="lime">PROJECTS</ArcadeButton>
+<ArcadeButton to="/about" color="purple">ABOUT</ArcadeButton>
+```
+
+<Tip>
+  The `neon-flicker` animation on the headline is defined in `index.css`. Adjust the keyframe timing or remove it entirely if you prefer a static glow instead.
+</Tip>
+
+## Data Shape
+
+The Home page is fully self-contained and does not consume any exported arrays from `mockData.js`. There is no data type to define. All content lives in the component JSX.
+
+## Related Pages
+
+<CardGroup cols={2}>
+  <Card title="ArcadeButton" icon="hand-pointer" href="/components/arcade-button">
+    The animated neon button component used for Home page navigation.
+  </Card>
+  <Card title="CRT Overlay" icon="tv" href="/components/crt-overlay">
+    The global scanline and vignette layer rendered above the Home hero.
+  </Card>
+  <Card title="Page Transition" icon="film" href="/components/page-transition">
+    The Framer Motion brightness-flicker wrapper that plays on every route change.
+  </Card>
+  <Card title="Design Tokens" icon="palette" href="/reference/design-tokens">
+    Neon color values and Tailwind tokens used for the hero color scheme.
+  </Card>
+</CardGroup>

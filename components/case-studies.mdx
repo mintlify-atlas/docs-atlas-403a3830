@@ -1,0 +1,223 @@
+---
+title: "Case Studies Page: Boss Fight Replay Breakdown"
+sidebarTitle: "Case Studies"
+description: "One project as a boss fight replay — three phases: The Boss, Strategy, and Victory — with a Framer Motion HealthBar and a STAGE CLEARED victory banner."
+---
+
+The Case Studies page reframes a deep project breakdown as a boss fight replay screen. A single case study is shown at a time, walked through three dramatic phases: introducing the problem as a boss with a full HP bar, revealing the strategy and combat moves that addressed it, and finally declaring victory with a depleted HP bar and a `STAGE CLEARED` banner. The animated `HealthBar` component drives the visual tension — its width transitions from 100% down to 0% across the three phases. Case study data is sourced from the `caseStudies` array in `data/mockData.js`, and the page always displays the first item in that array.
+
+## Route
+
+| Property | Value |
+|---|---|
+| Path | `/case-studies` |
+| File (compiled) | `assets/main.js` — `CaseStudiesPage` component |
+| Data export | `caseStudies` (exported as `c` from `mockData.js`) |
+| Theme colors | `arcade-magenta` · `arcade-lime` · `arcade-purple` |
+| Screen title | **BOSS FIGHT REPLAY** |
+
+## What It Displays
+
+The page is divided into three sequential phase blocks displayed vertically. Each phase has its own heading, HP bar state, and content block.
+
+### Phase 1 — THE BOSS
+
+Introduces the problem or legacy system being tackled. The boss name renders with a magenta neon glow and the HP bar shows **100%** — the problem is at full strength.
+
+| Element | Description |
+|---|---|
+| Boss name | Large `VT323` heading with `arcade-magenta` glow |
+| Boss type label | Subtitle describing the nature of the challenge |
+| HP bar | `HealthBar` component at 100% width, red fill |
+
+### Phase 2 — STRATEGY
+
+Presents the approach taken to solve the problem. The HP bar drops to **45%**, indicating the boss is wounded. A strategy summary paragraph is shown alongside a list of "combos" — the specific technical decisions or actions taken.
+
+| Element | Description |
+|---|---|
+| HP bar | `HealthBar` at 45% width |
+| Strategy text | Prose paragraph describing the approach |
+| Combos list | Bulleted list of key technical moves |
+
+### Phase 3 — VICTORY
+
+Declares the outcome. The HP bar reaches **0%**, the boss is defeated, and a `STAGE CLEARED` banner appears in lime green. Bonus stats (performance metrics, outcomes) are listed below.
+
+| Element | Description |
+|---|---|
+| HP bar | `HealthBar` at 0% width |
+| Victory text | Short declaration of the outcome |
+| STAGE CLEARED banner | Large lime pixel-font banner |
+| Bonus metrics | Key quantified results (load time, onboarding, uptime) |
+
+## Current Case Study
+
+The default dataset contains one case study: **Project: Overhaul**.
+
+| Field | Value |
+|---|---|
+| Title | Project: Overhaul |
+| Boss Name | Legacy Monolith |
+| Boss Type | Enterprise jQuery Application |
+| Strategy | jQuery → React migration with parallel running |
+| Combos | Component extraction, state lift, API abstraction |
+| Victory Metrics | Load time 12 s → 1.2 s · Onboarding time halved · Zero downtime |
+
+## HealthBar Component
+
+The `HealthBar` (internal component `ni`) animates its fill width from `0` to its target value using Framer Motion's `whileInView` trigger. This means each HP bar animates in as the user scrolls down to its phase, creating a staged reveal effect.
+
+```jsx
+// Approximate HealthBar usage in CaseStudiesPage
+<HealthBar
+  value={100}   // Phase 1
+  color="red"
+/>
+
+<HealthBar
+  value={45}    // Phase 2
+  color="yellow"
+/>
+
+<HealthBar
+  value={0}     // Phase 3
+  color="green"
+/>
+```
+
+<Note>
+  The page always renders `caseStudies[0]` — the **first item** in the array. There is no pagination or carousel for multiple case studies. To feature a different case study, either reorder the array so your preferred entry is first, or update the component to accept an index prop.
+</Note>
+
+## Animations
+
+The `HealthBar` width animates via Framer Motion `whileInView` as each phase scrolls into the viewport:
+
+```js
+// Approximate HealthBar animation
+const barVariants = {
+  hidden: { width: "0%" },
+  visible: {
+    width: `${value}%`,
+    transition: { duration: 1.2, ease: "easeOut" },
+  },
+};
+```
+
+The `STAGE CLEARED` banner uses a `neon-flicker` CSS animation identical to the Home page headline, giving it an authentic attract-screen feel.
+
+## Data Schema
+
+Each entry in the `caseStudies` array must conform to the following shape:
+
+```ts
+type CaseStudy = {
+  id: string;
+  title: string;          // Project title shown at the top of the replay
+  bossName: string;       // The "villain" — e.g. "Legacy Monolith"
+  bossType: string;       // Subtitle description of the challenge type
+  strategyText: string;   // Prose paragraph for Phase 2
+  combos: string[];       // Bulleted list of technical moves
+  victoryText: string;    // Short outcome declaration for Phase 3
+  bonusMetrics: string[]; // Quantified results shown after STAGE CLEARED
+};
+```
+
+### Field Reference
+
+| Field | Type | Phase | Description |
+|---|---|---|---|
+| `id` | `string` | — | React key, not displayed |
+| `title` | `string` | Header | Replay title shown above Phase 1 |
+| `bossName` | `string` | Phase 1 | Large glowing heading |
+| `bossType` | `string` | Phase 1 | Descriptive subtitle under boss name |
+| `strategyText` | `string` | Phase 2 | One-paragraph strategy summary |
+| `combos` | `string[]` | Phase 2 | Bulleted list of actions |
+| `victoryText` | `string` | Phase 3 | Brief victory declaration |
+| `bonusMetrics` | `string[]` | Phase 3 | Quantified outcome bullets |
+
+## Customization
+
+**Replacing the featured case study**
+
+Update the first (or only) entry in `data/mockData.js`:
+
+```js
+// data/mockData.js
+export const caseStudies = [
+  {
+    id: "cs1",
+    title: "Project: Overhaul",
+    bossName: "Legacy Monolith",
+    bossType: "Enterprise jQuery Application",
+    strategyText:
+      "We ran the React migration in parallel with the existing jQuery codebase, extracting components route-by-route to eliminate downtime risk.",
+    combos: [
+      "Introduced React Router alongside existing page transitions",
+      "Lifted shared state to a Context provider",
+      "Abstracted all fetch calls behind a service layer",
+    ],
+    victoryText:
+      "Full migration complete. The legacy jQuery bundle was removed entirely.",
+    bonusMetrics: [
+      "Load time: 12 s → 1.2 s",
+      "Developer onboarding time halved",
+      "Zero downtime across entire migration window",
+    ],
+  },
+];
+```
+
+**Adding multiple case studies**
+
+Add additional objects to the `caseStudies` array. To display them, you'll need to add navigation controls to the `CaseStudiesPage` component (e.g. PREV / NEXT arcade buttons) and track the active index in `useState`.
+
+<Tip>
+  Keep `bossName` short — it renders at large pixel-font size with a magenta glow. Names longer than about 25 characters may overflow on mobile viewports. Use a punchy label like `"Legacy Monolith"` or `"The Spaghetti API"` rather than a full project name.
+</Tip>
+
+## Sample Data
+
+```js
+// data/mockData.js
+export const caseStudies = [
+  {
+    id: "cs1",
+    title: "Project: Overhaul",
+    bossName: "Legacy Monolith",
+    bossType: "Enterprise jQuery Application — 80,000 lines",
+    strategyText:
+      "A parallel migration strategy allowed us to ship React components into production while the legacy jQuery layer remained live, eliminating any downtime risk.",
+    combos: [
+      "Component-by-component extraction from jQuery DOM manipulations",
+      "State lifted to a single Context provider across migrated routes",
+      "All XHR calls replaced with typed fetch services",
+    ],
+    victoryText:
+      "Legacy jQuery bundle retired. React app now serves 100% of traffic.",
+    bonusMetrics: [
+      "Initial load time reduced from 12 s to 1.2 s",
+      "New developer onboarding cut from 2 weeks to 1 week",
+      "Zero downtime during the entire migration window",
+    ],
+  },
+];
+```
+
+## Related Pages
+
+<CardGroup cols={2}>
+  <Card title="Projects" icon="grid-2" href="/components/projects">
+    The full project gallery where this case study also appears as a cartridge card.
+  </Card>
+  <Card title="Writing" icon="book" href="/components/writing">
+    Long-form articles and blog posts in the instruction manual format.
+  </Card>
+  <Card title="Mock Data Reference" icon="database" href="/reference/mock-data">
+    Full schema for the caseStudies export and all other mockData.js arrays.
+  </Card>
+  <Card title="Animations" icon="wand-magic-sparkles" href="/reference/animations">
+    HealthBar whileInView animation and neon-flicker CSS keyframe reference.
+  </Card>
+</CardGroup>

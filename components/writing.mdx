@@ -1,0 +1,196 @@
+---
+title: "Writing Page: Vintage Instruction Manual Blog Roll"
+sidebarTitle: "Writing"
+description: "Articles as instruction manuals with chapter numbers, REFLECTION/TECHNICAL/BUG REPORT badges, paper-texture styling, and a Framer Motion lift-rotate hover."
+---
+
+The Writing page brings the developer's blog posts and articles to life as a shelf of vintage instruction manuals. Each article is styled as a physical booklet — a light lavender paper background, monospace chapter numbering, a color-coded type badge (REFLECTION, TECHNICAL, or BUG REPORT), a title, excerpt, and publication date. Hovering over a manual triggers a Framer Motion animation that lifts the card upward and applies a slight rotation, mimicking picking a book off a shelf. All article data is sourced from the `articles` array in `data/mockData.js`.
+
+## Route
+
+| Property | Value |
+|---|---|
+| Path | `/writing` |
+| File (compiled) | `assets/main.js` — `WritingPage` component |
+| Data export | `articles` (exported as `a` from `mockData.js`) |
+| Theme colors | `#e0d8e8` (card paper) · `arcade-purple` · `arcade-lime` |
+| Screen title | **INSTRUCTION MANUALS** |
+
+## What It Displays
+
+The page renders a grid of article cards. Each card represents one article and uses a light lavender paper texture (`bg-[#e0d8e8]`) to contrast with the dark arcade background. The grid is single-column on mobile and multi-column on wider viewports.
+
+### Article Card Anatomy
+
+| Element | Description |
+|---|---|
+| Chapter number | `CHAPTER XX` in dim monospace at the top of the card |
+| Type badge | Colored pill showing `REFLECTION`, `TECHNICAL`, or `BUG REPORT` |
+| Title | Bold display text in dark ink against the paper background |
+| Excerpt | Short preview paragraph in body text |
+| Date | Publication date in `Mon YYYY` format, bottom-right of the card |
+
+## Current Articles
+
+Three articles are included in the default dataset:
+
+| # | Title | Type | Date |
+|---|---|---|---|
+| 1 | The State Management Dilemma | REFLECTION | Oct 2025 |
+| 2 | CSS Grid: A Boss Guide | TECHNICAL | Aug 2025 |
+| 3 | Memory Leak in Sector 7 | BUG REPORT | May 2025 |
+
+## Animations
+
+Cards use Framer Motion's `whileHover` to produce a shelf-lift effect. On hover, each card translates upward by `8 px` and rotates slightly to `1 deg`, then returns on mouse-leave.
+
+```js
+// Approximate whileHover variant on each article card
+const manualHoverVariants = {
+  rest: { y: 0, rotate: 0 },
+  hover: {
+    y: -8,
+    rotate: 1,
+    transition: { duration: 0.2, ease: "easeOut" },
+  },
+};
+```
+
+<Note>
+  The paper background color (`#e0d8e8`) is applied as an inline Tailwind arbitrary value (`bg-[#e0d8e8]`). It is intentionally light to simulate aged paper and contrast with the dark arcade background behind the cards. Changing it to a dark color will break the ink-on-paper legibility of the card text.
+</Note>
+
+## Data Schema
+
+Each entry in the `articles` array must conform to the following shape:
+
+```ts
+type Article = {
+  id: string;    // Unique identifier, used as React key and chapter numbering
+  title: string; // Article headline displayed on the manual cover
+  type: "REFLECTION" | "TECHNICAL" | "BUG REPORT"; // Badge category
+  excerpt: string; // Short preview shown on the card face
+  date: string;    // Publication date string, e.g. "Oct 2025"
+  url?: string;    // Optional external link (opens full article)
+};
+```
+
+### Field Reference
+
+| Field | Type | Displayed As | Notes |
+|---|---|---|---|
+| `id` | `string` | Not displayed | Used as React list key |
+| `title` | `string` | Manual title text | Keep under 60 chars |
+| `type` | `string` | Type badge (colored pill) | Must match one of three valid values |
+| `excerpt` | `string` | Body preview text | 1–2 sentences recommended |
+| `date` | `string` | Bottom-right date | Use `Mon YYYY` format for consistency |
+| `url` | `string?` | Card click/link target | Optional; omit if article is not published |
+
+### Type Badge Colors
+
+| Badge Value | Color |
+|---|---|
+| `REFLECTION` | `arcade-purple` |
+| `TECHNICAL` | `arcade-lime` |
+| `BUG REPORT` | `arcade-magenta` |
+
+## Customization
+
+**Adding a new article**
+
+Append a new object to the `articles` array in `data/mockData.js`. The `type` field controls the badge color.
+
+```js
+// data/mockData.js
+export const articles = [
+  // ... existing entries
+  {
+    id: "a4",
+    title: "Why I Stopped Writing CSS from Scratch",
+    type: "REFLECTION",
+    excerpt:
+      "After three years of writing custom stylesheets, utility-first CSS finally clicked — here's what changed my mind.",
+    date: "Dec 2025",
+    url: "https://yourblog.com/css-utility-first",
+  },
+];
+```
+
+**Changing the type badge**
+
+Update the `type` field to one of the three valid values: `"REFLECTION"`, `"TECHNICAL"`, or `"BUG REPORT"`. The badge color updates automatically based on this value.
+
+**Adding a `url` to an article**
+
+If an article is published externally, add the `url` field and the component will make the card a clickable link that opens the full article. If `url` is omitted or empty, the card is non-interactive.
+
+<Tip>
+  Article cards render best with excerpts of 20–40 words. Longer excerpts cause the card to grow taller than its neighbors in the grid, disrupting the "shelf of matching manuals" visual. Trim excerpts to a single punchy sentence for the cleanest layout.
+</Tip>
+
+## Chapter Numbering
+
+Chapter numbers are derived from the array index (`index + 1`) and formatted as a zero-padded two-digit string (e.g. `CHAPTER 01`, `CHAPTER 02`). They do not come from the data object — you don't need an explicit chapter number field.
+
+```jsx
+// Chapter number derivation in WritingPage
+{articles.map((article, index) => (
+  <ManualCard
+    key={article.id}
+    chapter={String(index + 1).padStart(2, "0")}
+    {...article}
+  />
+))}
+```
+
+## Sample Data
+
+```js
+// data/mockData.js
+export const articles = [
+  {
+    id: "a1",
+    title: "The State Management Dilemma",
+    type: "REFLECTION",
+    excerpt:
+      "Choosing between Context, Zustand, and Redux shouldn't feel like a boss fight — but here we are.",
+    date: "Oct 2025",
+    url: "",
+  },
+  {
+    id: "a2",
+    title: "CSS Grid: A Boss Guide",
+    type: "TECHNICAL",
+    excerpt:
+      "A complete walkthrough of CSS Grid placement — tracks, areas, and the alignment properties that actually matter.",
+    date: "Aug 2025",
+    url: "",
+  },
+  {
+    id: "a3",
+    title: "Memory Leak in Sector 7",
+    type: "BUG REPORT",
+    excerpt:
+      "How a forgotten useEffect cleanup function quietly consumed 400 MB over six hours in production.",
+    date: "May 2025",
+    url: "",
+  },
+];
+```
+
+## Related Pages
+
+<CardGroup cols={2}>
+  <Card title="Case Studies" icon="trophy" href="/components/case-studies">
+    Long-form boss-fight replay format for deep project breakdowns.
+  </Card>
+  <Card title="Mock Data Reference" icon="database" href="/reference/mock-data">
+    Full schema reference for all mockData.js exports including articles.
+  </Card>
+  <Card title="Animations" icon="wand-magic-sparkles" href="/reference/animations">
+    whileHover lift and rotate patterns used on the instruction manual cards.
+  </Card>
+  <Card title="Typography" icon="font" href="/reference/typography">
+    Pixel and monospace font usage for chapter labels and type badges.
+  </Card>
+</CardGroup>
