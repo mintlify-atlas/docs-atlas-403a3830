@@ -1,10 +1,10 @@
 ---
-title: "Projects Page: Game Cartridge Portfolio Gallery"
+title: "Projects Page: Arcade Game Cartridge Portfolio View"
 sidebarTitle: "Projects"
 description: "Portfolio projects rendered as game cartridge cards. Each card shows arcade metadata, a description, and hover-reveal RUN DEMO and SOURCE action buttons."
 ---
 
-The Projects page presents the developer's portfolio work through the lens of a retro game library. Each project is rendered as a stylized game cartridge card — complete with a glowing title, arcade-style metadata fields (`GENRE:` and `PLAYERS:`), and a description block. When a visitor hovers over a card, hidden action buttons slide into view: **RUN DEMO** to open a live deployment and **SOURCE** to navigate to the repository. All card data is pulled from the `projects` array in `data/mockData.js`, so adding or updating a project requires only a data change — no JSX edits needed.
+The Projects page presents the developer's portfolio work through the lens of a retro game library. Each project is rendered as a stylized game cartridge card — complete with a glowing title, arcade-style metadata fields (`GENRE:` and `PLAYERS:`), and a description block. When a visitor hovers over a card, hidden action buttons slide into view: **RUN DEMO** and **SOURCE**. These are UI elements only — they are not wired to live URLs or repositories in the default implementation. All card data is pulled from the `projects` array in `data/mockData.js`, so adding or updating a project requires only a data change — no JSX edits needed.
 
 ## Route
 
@@ -23,11 +23,11 @@ Each card shows:
 
 - **Title** — rendered with a neon glow in the project's accent color
 - **Year** — displayed at the top right of the card in dim monospace
-- **GENRE** — a short genre tag (e.g., `WEB APP`, `TOOL`, `GAME`)
-- **PLAYERS** — a player count string (e.g., `1P`, `MULTI`)
+- **GENRE** — a short tech-stack or genre tag (e.g., `React / Three.js`, `Next.js / Stripe`)
+- **PLAYERS** — a player count string (e.g., `Solo`, `Team`)
 - **Description** — a two-to-three sentence summary of the project
-- **RUN DEMO button** — links to the live URL; hidden by default, revealed on hover
-- **SOURCE button** — links to the repo URL; hidden by default, revealed on hover
+- **RUN DEMO button** — UI element revealed on hover; not linked to a live URL by default
+- **SOURCE button** — UI element revealed on hover; not linked to a repository by default
 
 ## Animations
 
@@ -55,18 +55,17 @@ The hover-reveal action buttons use a CSS transition on `opacity` and `translate
 
 Each project object in the `projects` array must conform to the following shape:
 
-```ts
-type Project = {
-  id: string;          // Unique identifier, used as React key
-  title: string;       // Display name of the project
-  year: number;        // Release or completion year
-  genre: string;       // Short genre tag shown as "GENRE: <value>"
-  players: string;     // Player count shown as "PLAYERS: <value>"
-  description: string; // Short prose summary of the project
-  color: "purple" | "lime" | "magenta" | "cyan"; // Accent color for glow + border
-  demoUrl: string;     // URL opened by the RUN DEMO button
-  sourceUrl: string;   // URL opened by the SOURCE button
-};
+```js
+// data/mockData.js — project object shape
+{
+  id: string,          // Unique identifier, used as React key
+  title: string,       // Display name of the project
+  year: string,        // Release or completion year (e.g. "2025")
+  genre: string,       // Tech stack tag shown as "GENRE: <value>"
+  players: string,     // Player count shown as "PLAYERS: <value>" (e.g. "Solo", "Team")
+  description: string, // Short prose summary of the project
+  color: string,       // Accent color — "purple" | "lime" | "magenta" | "cyan"
+}
 ```
 
 ### Field Reference
@@ -75,35 +74,42 @@ type Project = {
 |---|---|---|---|
 | `id` | `string` | Not displayed | Used as React list key |
 | `title` | `string` | Card heading with neon glow | Keep under 40 chars for layout |
-| `year` | `number` | Top-right of card | Four-digit year |
-| `genre` | `string` | `GENRE: <value>` | Use all-caps arcade style, e.g. `WEB APP` |
-| `players` | `string` | `PLAYERS: <value>` | E.g. `1P`, `MULTI`, `CO-OP` |
+| `year` | `string` | Top-right of card | Four-digit year as a string |
+| `genre` | `string` | `GENRE: <value>` | Tech stack or genre label, e.g. `React / Three.js` |
+| `players` | `string` | `PLAYERS: <value>` | E.g. `Solo`, `Team` |
 | `description` | `string` | Body text of card | 2–3 sentences recommended |
 | `color` | `string` | Glow + border accent | Must be one of four valid tokens |
-| `demoUrl` | `string` | RUN DEMO button href | Full absolute URL |
-| `sourceUrl` | `string` | SOURCE button href | Full absolute URL |
+
+## Current Projects
+
+Four projects ship in the default dataset:
+
+| Title | Genre | Players | Year | Color |
+|---|---|---|---|---|
+| Neon Nexus | React / Three.js | Solo | 2025 | purple |
+| CyberCart | Next.js / Stripe | Team | 2024 | lime |
+| GhostWriter | Vue / Node.js | Solo | 2024 | magenta |
+| PixelPulse | React Native | Team | 2023 | cyan |
 
 ## Customization
 
 **Adding a new project**
 
-Open `data/mockData.js` and append a new object to the `projects` array:
+Open `data/mockData.js` and append a new object to the `projects` array (exported as `p`):
 
 ```js
 // data/mockData.js
-export const projects = [
+export const p = [
   // ... existing entries
   {
-    id: "my-new-project",
+    id: "proj-5",
     title: "Pixel Weather App",
-    year: 2025,
-    genre: "WEB APP",
-    players: "1P",
+    year: "2025",
+    genre: "React / OpenWeather",
+    players: "Solo",
     description:
       "A retro-styled weather dashboard pulling live forecast data. Features animated pixel-art weather icons and a 7-day outlook panel.",
     color: "cyan",
-    demoUrl: "https://weather.example.com",
-    sourceUrl: "https://github.com/you/pixel-weather",
   },
 ];
 ```
@@ -112,30 +118,72 @@ export const projects = [
 
 Set the `color` field to any of the four supported token values: `"purple"`, `"lime"`, `"magenta"`, or `"cyan"`. The card border, title glow, and button highlight all derive from this single field.
 
-**Hiding the SOURCE or RUN DEMO button**
+**Wiring up the RUN DEMO and SOURCE buttons**
 
-If a project has no live demo or no public repository, set the corresponding URL to an empty string (`""`). The component checks for a truthy value before rendering the button.
-
-<Tip>
-  Keep the `genre` and `players` values short — they render in `VT323` pixel font at a fixed size. Labels longer than ~10 characters may overflow on mobile screens. See [Typography](/reference/typography) for font size reference.
-</Tip>
-
-## Sample Data Entry
+The RUN DEMO and SOURCE buttons are hover-reveal UI elements. They are not linked to real URLs in the default data schema. To add real links, extend the project object with URL fields in `mockData.js` and update the card component to read them:
 
 ```js
-// Example entry from data/mockData.js
+// Extended project object with optional URL fields
 {
-  id: "overhaul",
-  title: "Project: Overhaul",
-  year: 2024,
-  genre: "MIGRATION",
-  players: "TEAM",
-  description:
-    "A full jQuery-to-React migration of a legacy monolith. Reduced initial load time from 12 s to 1.2 s with zero downtime deployment.",
-  color: "magenta",
-  demoUrl: "https://overhaul.example.com",
-  sourceUrl: "https://github.com/you/overhaul",
+  id: "proj-1",
+  title: "Neon Nexus",
+  year: "2025",
+  genre: "React / Three.js",
+  players: "Solo",
+  description: "A 3D data visualization dashboard for tracking server metrics in real-time.",
+  color: "purple",
+  // Add these fields manually if desired:
+  demoUrl: "https://demo.example.com",
+  sourceUrl: "https://github.com/you/neon-nexus",
 }
+```
+
+<Tip>
+  Keep the `genre` and `players` values short — they render in `VT323` pixel font at a fixed size. Labels longer than ~15 characters may overflow on mobile screens. See [Typography](/reference/typography) for font size reference.
+</Tip>
+
+## Sample Data
+
+```js
+// Excerpt from data/mockData.js (export p)
+[
+  {
+    id: "proj-1",
+    title: "Neon Nexus",
+    genre: "React / Three.js",
+    players: "Solo",
+    year: "2025",
+    description: "A 3D data visualization dashboard for tracking server metrics in real-time.",
+    color: "purple",
+  },
+  {
+    id: "proj-2",
+    title: "CyberCart",
+    genre: "Next.js / Stripe",
+    players: "Team",
+    year: "2024",
+    description: "High-performance headless e-commerce storefront with optimistic UI updates.",
+    color: "lime",
+  },
+  {
+    id: "proj-3",
+    title: "GhostWriter",
+    genre: "Vue / Node.js",
+    players: "Solo",
+    year: "2024",
+    description: "Markdown editor with real-time collaboration and haunted AI suggestions.",
+    color: "magenta",
+  },
+  {
+    id: "proj-4",
+    title: "PixelPulse",
+    genre: "React Native",
+    players: "Team",
+    year: "2023",
+    description: "Retro-styled habit tracker that gamifies daily routines.",
+    color: "cyan",
+  },
+]
 ```
 
 ## Related Pages

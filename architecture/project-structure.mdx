@@ -90,12 +90,12 @@ The transition uses `initial`, `animate`, and `exit` props with a `brightness`/`
 
 The single source of truth for every piece of portfolio content. The file is a minified ES module with five named exports:
 
-| Export | Alias | Content |
+| Export | Meaning | Content |
 |---|---|---|
 | `p` | projects | Array of `Project` objects |
 | `s` | skills | Object with `frontend`, `backend`, and `tooling` arrays |
 | `a` | articles | Array of writing `Article` objects |
-| `c` | caseStudies | Array of `CaseStudy` objects |
+| `c` | case studies | Array of `CaseStudy` objects |
 | `g` | guestbook | Array of `GuestEntry` objects |
 
 See [Data Layer](/architecture/data-layer) for full type signatures and examples.
@@ -117,7 +117,7 @@ If you're inspecting `main.js` to understand how a specific page component works
 
 ## How the pieces connect
 
-```
+```text
 Browser requests /about
         │
         ▼

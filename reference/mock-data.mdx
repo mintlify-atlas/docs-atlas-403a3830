@@ -1,10 +1,10 @@
 ---
-title: "Mock Data Reference — Dev Mode Arcade Portfolio"
+title: "Mock Data Reference — Dev Mode Arcade Data Layer"
 sidebarTitle: "Mock Data"
 description: "Complete schema reference for data/mockData.js — the single static file that powers every section of your Dev Mode Arcade portfolio."
 ---
 
-All portfolio content — projects, skills, articles, case studies, and guestbook entries — lives in one place: `data/mockData.js`. This flat static file is the single source of truth for the entire site. No database, no CMS, no API calls — just a JavaScript module that exports five named constants consumed directly by the React components at build time. Editing this file is all you need to make the portfolio your own.
+All portfolio content — projects, skills, articles, case studies, and guestbook entries — lives in one place: `data/mockData.js`. This flat static file is the single source of truth for the entire site. No database, no CMS, no API calls — just a JavaScript module that exports five single-letter constants (`p`, `s`, `a`, `c`, `g`) consumed directly by the React components at build time. Editing this file is all you need to make the portfolio your own.
 
 <Note>
   The file is compiled into the production bundle via Vite's ES module tree-shaking. Only the exports actually imported by components end up in the final build, so unused data adds zero overhead.
@@ -16,21 +16,19 @@ All portfolio content — projects, skills, articles, case studies, and guestboo
 
 The `p` export is an array of project objects rendered on the [Projects page](/components/projects). Each entry maps to one arcade game cabinet card, complete with a colored glow accent.
 
-### TypeScript type
+### Shape reference
 
-```ts
-type Project = {
-  id:          string;   // Unique identifier
-  title:       string;   // Display title
-  genre:       string;   // Tech stack label (shown as "genre")
-  players:     string;   // "Solo" or "Team"
-  year:        string;   // Release / completion year
-  description: string;   // Short summary paragraph
-  color:       "purple" | "lime" | "magenta" | "cyan";
-};
-
-type Projects = Project[];
-export const p: Projects;
+```js
+// Project object shape (plain JavaScript — no TypeScript in source)
+// {
+//   id:          string   — Unique identifier
+//   title:       string   — Display title
+//   genre:       string   — Tech stack label (shown as "genre")
+//   players:     string   — "Solo" or "Team"
+//   year:        string   — Release / completion year
+//   description: string   — Short summary paragraph
+//   color:       string   — One of: "purple" | "lime" | "magenta" | "cyan"
+// }
 ```
 
 ### Field reference
@@ -46,7 +44,7 @@ export const p: Projects;
 | `color` | `string` | Arcade glow accent — must be one of the four design-token colors | `"purple"` |
 
 <Warning>
-  The `color` field must be exactly one of `"purple"`, `"lime"`, `"magenta"`, or `"cyan"`. These map directly to the CSS custom properties defined in the design tokens. Any other value will fall back to an unstyled state with no glow effect.
+  The `color` field must be exactly one of `"purple"`, `"lime"`, `"magenta"`, or `"cyan"`. These map directly to the CSS utility classes defined in the design tokens (`text-glow-*`, `box-glow-*`, `border-arcade-*`). Any other value will fall back to an unstyled state with no glow effect.
 </Warning>
 
 ### Full data
@@ -99,22 +97,15 @@ export const p = [
 
 The `s` export is an object with three category keys, each holding an array of skill entries. The [Skills page](/components/skills) renders each category as a separate panel of glowing skill circles.
 
-### TypeScript type
+### Shape reference
 
-```ts
-type Skill = {
-  name:  string;  // Skill label shown on the circle
-  level: string;  // Display string, e.g. "Level 99"
-  desc:  string;  // Tooltip / hover description
-};
-
-type Skills = {
-  frontend: Skill[];
-  backend:  Skill[];
-  tooling:  Skill[];
-};
-
-export const s: Skills;
+```js
+// Skills object shape (plain JavaScript — no TypeScript in source)
+// {
+//   frontend: [ { name: string, level: string, desc: string }, ... ],
+//   backend:  [ { name: string, level: string, desc: string }, ... ],
+//   tooling:  [ { name: string, level: string, desc: string }, ... ],
+// }
 ```
 
 ### Categories
@@ -178,20 +169,18 @@ export const s = {
 
 The `a` export is an array of writing article objects displayed on the [Writing page](/components/writing) as an instruction-manual chapter list. Each entry includes a badge indicating the article's type.
 
-### TypeScript type
+### Shape reference
 
-```ts
-type Article = {
-  id:      string;  // Unique identifier
-  chapter: string;  // Display string for the chapter number
-  title:   string;  // Article title
-  type:    string;  // Badge label — any uppercase string
-  date:    string;  // Human-readable publication date
-  excerpt: string;  // Short teaser shown beneath the title
-};
-
-type Articles = Article[];
-export const a: Articles;
+```js
+// Article object shape (plain JavaScript — no TypeScript in source)
+// {
+//   id:      string  — Unique identifier
+//   chapter: string  — Display string for the chapter number
+//   title:   string  — Article title
+//   type:    string  — Badge label — any uppercase string
+//   date:    string  — Human-readable publication date
+//   excerpt: string  — Short teaser shown beneath the title
+// }
 ```
 
 ### Field reference
@@ -247,22 +236,20 @@ export const a = [
 
 The `c` export is an array of case study objects shown on the [Case Studies page](/components/case-studies). Each entry is framed as a boss fight: the project challenge is the boss, and the solution is the strategy used to defeat it.
 
-### TypeScript type
+### Shape reference
 
-```ts
-type CaseStudy = {
-  id:       string;    // Unique identifier
-  title:    string;    // Project title
-  boss:     string;    // Name of the core challenge ("the boss")
-  problem:  string;    // Description of the problem to solve
-  strategy: string;    // High-level approach taken
-  combos:   string[];  // List of specific techniques / tools used
-  victory:  string;    // Measurable outcomes achieved
-  bonus:    string;    // Optional next step or bonus achievement
-};
-
-type CaseStudies = CaseStudy[];
-export const c: CaseStudies;
+```js
+// CaseStudy object shape (plain JavaScript — no TypeScript in source)
+// {
+//   id:       string    — Unique identifier
+//   title:    string    — Project title
+//   boss:     string    — Name of the core challenge ("the boss")
+//   problem:  string    — Description of the problem to solve
+//   strategy: string    — High-level approach taken
+//   combos:   string[]  — List of specific techniques / tools used
+//   victory:  string    — Measurable outcomes achieved
+//   bonus:    string    — Optional next step or bonus achievement
+// }
 ```
 
 ### Field reference
@@ -310,17 +297,15 @@ export const c = [
 
 The `g` export is an array of pre-populated leaderboard entries shown in the sidebar of the [Contact page](/components/contact). These seed entries give the guestbook personality before any real visitors have signed it.
 
-### TypeScript type
+### Shape reference
 
-```ts
-type GuestbookEntry = {
-  initials: string;  // Up to 3 characters — displayed on the leaderboard
-  score:    number;  // Numeric score padded to 6 digits in the UI
-  message:  string;  // The entry's one-liner
-};
-
-type Guestbook = GuestbookEntry[];
-export const g: Guestbook;
+```js
+// GuestbookEntry object shape (plain JavaScript — no TypeScript in source)
+// {
+//   initials: string  — Up to 3 characters — displayed on the leaderboard
+//   score:    number  — Numeric score padded to 6 digits in the UI
+//   message:  string  — The entry's one-liner
+// }
 ```
 
 ### Field reference
@@ -351,16 +336,20 @@ export const g = [
 
 ## Complete file structure
 
-For reference, here is the full module structure showing all five named exports:
+For reference, here is the full module structure showing all five single-letter exports:
 
 ```js
-// data/mockData.js — export map
-export { p };  // Project[]       — Projects page
-export { s };  // Skills          — Skills page
-export { a };  // Article[]       — Writing page
-export { c };  // CaseStudy[]     — Case Studies page
-export { g };  // GuestbookEntry[] — Contact page sidebar
+// data/mockData.js — all five exports use single-letter names
+export { p };  // array    — projects        → Projects page
+export { s };  // object   — skills          → Skills page
+export { a };  // array    — articles        → Writing page
+export { c };  // array    — caseStudies     → Case Studies page
+export { g };  // array    — guestbook       → Contact page sidebar
 ```
+
+<Note>
+  The source file uses minified single-letter identifiers (`p`, `s`, `a`, `c`, `g`) as both the internal variable names and the exported names. Import them using those exact letters: `import { p, s, a, c, g } from '../data/mockData.js'`.
+</Note>
 
 <Note>
   Ready to replace the placeholder data with your own? Head to the [Customization guide](/reference/customization) for a step-by-step walkthrough of every field.

@@ -12,7 +12,7 @@ Standard `BrowserRouter` routes like `/about` require the server to return the s
 
 `HashRouter` sidesteps this entirely. The server always serves a real HTML file for the pathname portion of the URL, and the hash fragment (`#/skills`) is handled entirely by React Router in the browser.
 
-```
+```text
 BrowserRouter:  https://devmodearcade.dev/about      ← server must handle /about
 HashRouter:     https://devmodearcade.dev/#/about     ← server only ever sees /
 ```
@@ -80,7 +80,7 @@ The React app inside `main.js` defines the following routes. Each one correspond
 
 When a user clicks an in-app link, React Router updates the hash fragment and re-renders without a page load. The `PageTransition` wrapper animates the outgoing and incoming screens using Framer Motion's `AnimatePresence`:
 
-```
+```text
 User clicks "Projects"
         │
         ▼
@@ -96,7 +96,7 @@ PageTransition mounts /projects with entry animation
 
 For direct navigation (typing a URL, opening a bookmark, or a server-delivered link), the flow goes through the static HTML layer first:
 
-```
+```text
 Browser loads pages/Projects.html
         │
         ├─ Inline script sets window.__STATIC_PAGE_ROUTE__ = "/projects"

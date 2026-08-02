@@ -1,5 +1,5 @@
 ---
-title: "Customization Guide — Dev Mode Arcade Portfolio"
+title: "Customization Guide — Personalizing Dev Mode Arcade"
 sidebarTitle: "Customization"
 description: "Step-by-step guide to replacing placeholder data, updating your About page, and restyling Dev Mode Arcade to make the portfolio your own."
 ---
@@ -229,15 +229,15 @@ export const g = [
 
 ### Step 7: Branding and colors
 
-The four arcade accent colors — `purple`, `lime`, `magenta`, and `cyan` — are defined as CSS custom properties and mapped in the Tailwind theme. To change or extend the palette, update those definitions in one place and every component that references them will update automatically.
+The four arcade accent colors — `purple`, `lime`, `magenta`, and `cyan` — are compiled directly into Tailwind utility classes in `main.css`. Each color's hex value appears in every related rule (`bg-arcade-*`, `text-arcade-*`, `border-arcade-*`, `text-glow-*`, `box-glow-*`). To change or extend the palette, find and replace the hex value in those rules throughout `main.css`.
 
 **Where the tokens live:**
 
-Refer to the [Design Tokens reference](/reference/design-tokens) for the complete list of CSS variables and Tailwind theme keys. The primary color definitions control glow effects, border accents, badge backgrounds, and skill circle fills.
+Refer to the [Design Tokens reference](/reference/design-tokens) for the complete list of hex values, utility class names, and glow definitions. The primary color rules control glow effects, border accents, badge backgrounds, and skill circle fills.
 
 **Changing the primary accent color:**
 
-If you want to shift the overall site tone — for example, replacing `purple` as the default hero accent with a custom brand color — update the corresponding `--color-purple` CSS variable and its Tailwind alias in `tailwind.config.js`. Everything that uses `color: "purple"` in the data will inherit the change.
+If you want to shift the overall site tone — for example, replacing `purple` as the default hero accent with a custom brand color — find every occurrence of `#b026ff` in `main.css` (the compiled Tailwind output) and replace it with your chosen hex value. The color is baked directly into the generated utility classes (`bg-arcade-purple`, `text-arcade-purple`, `border-arcade-purple`, `text-glow-purple`, `box-glow-purple`, and their hover variants). Everything that uses `color: "purple"` in the data will inherit the change once those classes are updated.
 
 **Typography:**
 
@@ -248,7 +248,7 @@ Dev Mode Arcade loads two typefaces from Google Fonts:
 | **VT323** | Pixel display headings, score readouts, badge labels |
 | **JetBrains Mono** | Body text, code-style labels, stat values |
 
-To swap fonts, update the `<link>` tags in `index.html` and replace the font-family references in your CSS. See the [Typography reference](/reference/typography) for the full font stack documentation.
+To swap fonts, update the `@import` URL at the top of `main.css` to load your chosen Google Fonts families, then replace the `font-family` values in the `.font-pixel` and `.font-mono` rules further down in that same file. See the [Typography reference](/reference/typography) for the full font stack documentation.
 
 </Steps>
 

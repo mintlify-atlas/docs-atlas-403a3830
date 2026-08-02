@@ -13,7 +13,7 @@ data/
 └── mockData.js   # The single source of truth for all portfolio content
 ```
 
-`main.js` imports all five exports at startup:
+When consuming the data in your own components, import by the single-character export names and rename locally for readability:
 
 ```js
 import { p as projects, s as skills, a as articles, c as caseStudies, g as guestbook }
@@ -21,7 +21,7 @@ import { p as projects, s as skills, a as articles, c as caseStudies, g as guest
 ```
 
 <Note>
-The exports use single-character aliases (`p`, `s`, `a`, `c`, `g`) because the file is minified. When reading or editing the source, keep these alias names in mind — they are what component modules actually reference.
+The exports use single-character aliases (`p`, `s`, `a`, `c`, `g`) because the file is minified. These are the actual export names — there are no long-form named exports like `projects` or `skills`. Use the short names in your import statement and alias them locally as shown above.
 </Note>
 
 ## The five exports
@@ -30,15 +30,16 @@ The exports use single-character aliases (`p`, `s`, `a`, `c`, `g`) because the f
 
 Rendered on the `/projects` route as retro game cartridge cards. Each project maps its tech stack to a `genre` field and its team size to a `players` field, staying consistent with the arcade metaphor.
 
-```ts
-type Project = {
-  id: string        // Unique identifier, e.g. "proj-1"
-  title: string     // Display name, e.g. "Neon Nexus"
-  genre: string     // Tech stack label, e.g. "React / Three.js"
-  players: string   // "Solo" | "Team"
-  year: string      // Four-digit year string, e.g. "2025"
-  description: string
-  color: "purple" | "lime" | "magenta" | "cyan"
+```js
+// Project shape — exported as `p`
+{
+  id: string,        // Unique identifier, e.g. "proj-1"
+  title: string,     // Display name, e.g. "Neon Nexus"
+  genre: string,     // Tech stack label, e.g. "React / Three.js"
+  players: string,   // "Solo" | "Team"
+  year: string,      // Four-digit year string, e.g. "2025"
+  description: string,
+  color: string,     // "purple" | "lime" | "magenta" | "cyan"
 }
 ```
 
@@ -59,17 +60,13 @@ The `color` field maps directly to the arcade design token set (see [Design Toke
 
 Rendered on the `/skills` route as a control-panel skill tree, grouped into three categories. Each skill has a human-readable `level` string rather than a numeric value, keeping the arcade RPG flavour.
 
-```ts
-type SkillLevel = {
-  name: string    // Skill name, e.g. "React"
-  level: string   // Display level, e.g. "Level 99"
-  desc: string    // One-sentence description
-}
-
-type Skills = {
-  frontend: SkillLevel[]
-  backend:  SkillLevel[]
-  tooling:  SkillLevel[]
+```js
+// Skills shape — exported as `s`
+// Each category holds an array of skill entries
+{
+  frontend: [ { name: string, level: string, desc: string }, /* ... */ ],
+  backend:  [ { name: string, level: string, desc: string }, /* ... */ ],
+  tooling:  [ { name: string, level: string, desc: string }, /* ... */ ],
 }
 ```
 
@@ -94,14 +91,15 @@ type Skills = {
 
 Rendered on the `/writing` route as instruction-manual pages. Each article has a `chapter` number and a `type` tag that categorises the writing style.
 
-```ts
-type Article = {
-  id: string
-  chapter: string                                   // Zero-padded, e.g. "01"
-  title: string
-  type: "REFLECTION" | "TECHNICAL" | "BUG REPORT"
-  date: string                                      // e.g. "Oct 2025"
-  excerpt: string
+```js
+// Article shape — exported as `a`
+{
+  id: string,       // Unique identifier, e.g. "art-1"
+  chapter: string,  // Zero-padded chapter number, e.g. "01"
+  title: string,
+  type: string,     // "REFLECTION" | "TECHNICAL" | "BUG REPORT"
+  date: string,     // e.g. "Oct 2025"
+  excerpt: string,
 }
 ```
 
@@ -119,16 +117,17 @@ type Article = {
 
 Rendered on the `/case-studies` route as boss-fight summaries. The `boss` field names the antagonist (typically a legacy system or technical debt), and `combos` lists the techniques used to defeat it.
 
-```ts
-type CaseStudy = {
-  id: string
-  title: string
-  boss: string       // Antagonist / legacy system, e.g. "The Legacy Monolith"
-  problem: string    // Context and pain points
-  strategy: string   // Approach taken
-  combos: string[]   // Specific techniques used
-  victory: string    // Measurable outcome
-  bonus: string      // Next steps / follow-on work
+```js
+// CaseStudy shape — exported as `c`
+{
+  id: string,
+  title: string,
+  boss: string,      // Antagonist / legacy system, e.g. "The Legacy Monolith"
+  problem: string,   // Context and pain points
+  strategy: string,  // Approach taken
+  combos: [],        // string[] — specific techniques used
+  victory: string,   // Measurable outcome
+  bonus: string,     // Next steps / follow-on work
 }
 ```
 
@@ -149,11 +148,12 @@ The current dataset contains one case study:
 
 Rendered on the `/contact` route as an arcade high-score table. Entries use three-character initials to stay faithful to the classic arcade leaderboard format.
 
-```ts
-type GuestEntry = {
-  initials: string   // Exactly 3 uppercase characters, e.g. "AAA"
-  score: number      // Numeric score (higher = better)
-  message: string    // Short message displayed next to the score
+```js
+// GuestEntry shape — exported as `g`
+{
+  initials: string,  // Exactly 3 uppercase characters, e.g. "AAA"
+  score: number,     // Numeric score (higher = better)
+  message: string,   // Short message displayed next to the score
 }
 ```
 

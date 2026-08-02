@@ -1,7 +1,7 @@
 ---
-title: "Dev Mode Arcade: Retro Portfolio for Developers"
+title: "Dev Mode Arcade: React Retro Portfolio for Developers"
 sidebarTitle: "Introduction"
-description: "Dev Mode Arcade is a React + Vite personal portfolio with a retro arcade cabinet theme — CRT scanlines, neon glow, pixel fonts, and Framer Motion animations."
+description: "Dev Mode Arcade is a React + Vite personal portfolio with a retro arcade theme — CRT scanlines, neon glow, pixel fonts, and Framer Motion page transitions."
 ---
 
 Dev Mode Arcade is a retro arcade-themed React single-page application built for developers who want their personal portfolio to feel like a playable experience. This page covers what the project is, what it includes out of the box, the technologies that power it, and how its architecture fits together — giving you everything you need before diving into the code.
@@ -62,7 +62,7 @@ The portfolio covers seven distinct sections — home, projects, about, skills, 
 
 Dev Mode Arcade is a **client-side single-page application** built on React 18 and bundled by Vite. Here is a condensed map of how the pieces connect:
 
-```
+```text
 index.html                  ← entry point, sets window.__STATIC_PAGE_ROUTE__
 └── main.js                 ← React root mount, HashRouter wrapper
     ├── CRTOverlay          ← fixed global scanline/vignette layer (z-50)

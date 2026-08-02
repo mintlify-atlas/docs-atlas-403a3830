@@ -1,5 +1,5 @@
 ---
-title: "Case Studies Page: Boss Fight Replay Breakdown"
+title: "Case Studies Page: Arcade Boss Fight Project Replay"
 sidebarTitle: "Case Studies"
 description: "One project as a boss fight replay — three phases: The Boss, Strategy, and Victory — with a Framer Motion HealthBar and a STAGE CLEARED victory banner."
 ---
@@ -27,7 +27,7 @@ Introduces the problem or legacy system being tackled. The boss name renders wit
 | Element | Description |
 |---|---|
 | Boss name | Large `VT323` heading with `arcade-magenta` glow |
-| Boss type label | Subtitle describing the nature of the challenge |
+| Problem description | Prose block describing the nature of the challenge |
 | HP bar | `HealthBar` component at 100% width, red fill |
 
 ### Phase 2 — STRATEGY
@@ -42,14 +42,14 @@ Presents the approach taken to solve the problem. The HP bar drops to **45%**, i
 
 ### Phase 3 — VICTORY
 
-Declares the outcome. The HP bar reaches **0%**, the boss is defeated, and a `STAGE CLEARED` banner appears in lime green. Bonus stats (performance metrics, outcomes) are listed below.
+Declares the outcome. The HP bar reaches **0%**, the boss is defeated, and a `STAGE CLEARED` banner appears in lime green. A bonus stat line is listed below the banner.
 
 | Element | Description |
 |---|---|
 | HP bar | `HealthBar` at 0% width |
 | Victory text | Short declaration of the outcome |
 | STAGE CLEARED banner | Large lime pixel-font banner |
-| Bonus metrics | Key quantified results (load time, onboarding, uptime) |
+| Bonus | Next-step or bonus outcome string |
 
 ## Current Case Study
 
@@ -58,15 +58,16 @@ The default dataset contains one case study: **Project: Overhaul**.
 | Field | Value |
 |---|---|
 | Title | Project: Overhaul |
-| Boss Name | Legacy Monolith |
-| Boss Type | Enterprise jQuery Application |
-| Strategy | jQuery → React migration with parallel running |
-| Combos | Component extraction, state lift, API abstraction |
-| Victory Metrics | Load time 12 s → 1.2 s · Onboarding time halved · Zero downtime |
+| Boss | The Legacy Monolith |
+| Problem | A 5-year-old jQuery application that took 12 seconds to load and was impossible to maintain. |
+| Strategy | Strangler fig pattern. Slowly replacing jQuery widgets with React components mounted via portals. |
+| Combos | Webpack to Vite migration · Redux Toolkit adoption · Custom design system implementation |
+| Victory | Load time reduced to 1.2s. Developer onboarding time cut in half. Zero downtime during migration. |
+| Bonus | Next step: migrating the remaining REST endpoints to GraphQL. |
 
 ## HealthBar Component
 
-The `HealthBar` (internal component `ni`) animates its fill width from `0` to its target value using Framer Motion's `whileInView` trigger. This means each HP bar animates in as the user scrolls down to its phase, creating a staged reveal effect.
+The `HealthBar` (internal component) animates its fill width from `0` to its target value using Framer Motion's `whileInView` trigger. This means each HP bar animates in as the user scrolls down to its phase, creating a staged reveal effect.
 
 ```jsx
 // Approximate HealthBar usage in CaseStudiesPage
@@ -111,17 +112,18 @@ The `STAGE CLEARED` banner uses a `neon-flicker` CSS animation identical to the 
 
 Each entry in the `caseStudies` array must conform to the following shape:
 
-```ts
-type CaseStudy = {
-  id: string;
-  title: string;          // Project title shown at the top of the replay
-  bossName: string;       // The "villain" — e.g. "Legacy Monolith"
-  bossType: string;       // Subtitle description of the challenge type
-  strategyText: string;   // Prose paragraph for Phase 2
-  combos: string[];       // Bulleted list of technical moves
-  victoryText: string;    // Short outcome declaration for Phase 3
-  bonusMetrics: string[]; // Quantified results shown after STAGE CLEARED
-};
+```js
+// data/mockData.js — case study object shape
+{
+  id: string,       // Unique identifier, used as React key
+  title: string,    // Project title shown at the top of the replay
+  boss: string,     // The "villain" — e.g. "The Legacy Monolith"
+  problem: string,  // Prose description of the challenge (Phase 1)
+  strategy: string, // Prose paragraph describing the approach (Phase 2)
+  combos: string[], // Bulleted list of technical moves (Phase 2)
+  victory: string,  // Short outcome declaration (Phase 3)
+  bonus: string,    // Next-step or bonus result shown after STAGE CLEARED
+}
 ```
 
 ### Field Reference
@@ -130,12 +132,12 @@ type CaseStudy = {
 |---|---|---|---|
 | `id` | `string` | — | React key, not displayed |
 | `title` | `string` | Header | Replay title shown above Phase 1 |
-| `bossName` | `string` | Phase 1 | Large glowing heading |
-| `bossType` | `string` | Phase 1 | Descriptive subtitle under boss name |
-| `strategyText` | `string` | Phase 2 | One-paragraph strategy summary |
-| `combos` | `string[]` | Phase 2 | Bulleted list of actions |
-| `victoryText` | `string` | Phase 3 | Brief victory declaration |
-| `bonusMetrics` | `string[]` | Phase 3 | Quantified outcome bullets |
+| `boss` | `string` | Phase 1 | Large glowing boss name heading |
+| `problem` | `string` | Phase 1 | Prose description of the challenge |
+| `strategy` | `string` | Phase 2 | One-paragraph strategy summary |
+| `combos` | `string[]` | Phase 2 | Bulleted list of technical actions |
+| `victory` | `string` | Phase 3 | Brief victory declaration |
+| `bonus` | `string` | Phase 3 | Bonus outcome or next-step note |
 
 ## Customization
 
@@ -144,29 +146,26 @@ type CaseStudy = {
 Update the first (or only) entry in `data/mockData.js`:
 
 ```js
-// data/mockData.js
-export const caseStudies = [
+// data/mockData.js (export c)
+[
   {
-    id: "cs1",
+    id: "cs-1",
     title: "Project: Overhaul",
-    bossName: "Legacy Monolith",
-    bossType: "Enterprise jQuery Application",
-    strategyText:
-      "We ran the React migration in parallel with the existing jQuery codebase, extracting components route-by-route to eliminate downtime risk.",
+    boss: "The Legacy Monolith",
+    problem:
+      "A 5-year-old jQuery application that took 12 seconds to load and was impossible to maintain.",
+    strategy:
+      "Strangler fig pattern. Slowly replacing jQuery widgets with React components mounted via portals.",
     combos: [
-      "Introduced React Router alongside existing page transitions",
-      "Lifted shared state to a Context provider",
-      "Abstracted all fetch calls behind a service layer",
+      "Webpack to Vite migration",
+      "Redux Toolkit adoption",
+      "Custom design system implementation",
     ],
-    victoryText:
-      "Full migration complete. The legacy jQuery bundle was removed entirely.",
-    bonusMetrics: [
-      "Load time: 12 s → 1.2 s",
-      "Developer onboarding time halved",
-      "Zero downtime across entire migration window",
-    ],
+    victory:
+      "Load time reduced to 1.2s. Developer onboarding time cut in half. Zero downtime during migration.",
+    bonus: "Next step: migrating the remaining REST endpoints to GraphQL.",
   },
-];
+]
 ```
 
 **Adding multiple case studies**
@@ -174,35 +173,32 @@ export const caseStudies = [
 Add additional objects to the `caseStudies` array. To display them, you'll need to add navigation controls to the `CaseStudiesPage` component (e.g. PREV / NEXT arcade buttons) and track the active index in `useState`.
 
 <Tip>
-  Keep `bossName` short — it renders at large pixel-font size with a magenta glow. Names longer than about 25 characters may overflow on mobile viewports. Use a punchy label like `"Legacy Monolith"` or `"The Spaghetti API"` rather than a full project name.
+  Keep `boss` short — it renders at large pixel-font size with a magenta glow. Names longer than about 25 characters may overflow on mobile viewports. Use a punchy label like `"The Legacy Monolith"` or `"The Spaghetti API"` rather than a full project name.
 </Tip>
 
 ## Sample Data
 
 ```js
-// data/mockData.js
-export const caseStudies = [
+// data/mockData.js (export c)
+[
   {
-    id: "cs1",
+    id: "cs-1",
     title: "Project: Overhaul",
-    bossName: "Legacy Monolith",
-    bossType: "Enterprise jQuery Application — 80,000 lines",
-    strategyText:
-      "A parallel migration strategy allowed us to ship React components into production while the legacy jQuery layer remained live, eliminating any downtime risk.",
+    boss: "The Legacy Monolith",
+    problem:
+      "A 5-year-old jQuery application that took 12 seconds to load and was impossible to maintain.",
+    strategy:
+      "Strangler fig pattern. Slowly replacing jQuery widgets with React components mounted via portals.",
     combos: [
-      "Component-by-component extraction from jQuery DOM manipulations",
-      "State lifted to a single Context provider across migrated routes",
-      "All XHR calls replaced with typed fetch services",
+      "Webpack to Vite migration",
+      "Redux Toolkit adoption",
+      "Custom design system implementation",
     ],
-    victoryText:
-      "Legacy jQuery bundle retired. React app now serves 100% of traffic.",
-    bonusMetrics: [
-      "Initial load time reduced from 12 s to 1.2 s",
-      "New developer onboarding cut from 2 weeks to 1 week",
-      "Zero downtime during the entire migration window",
-    ],
+    victory:
+      "Load time reduced to 1.2s. Developer onboarding time cut in half. Zero downtime during migration.",
+    bonus: "Next step: migrating the remaining REST endpoints to GraphQL.",
   },
-];
+]
 ```
 
 ## Related Pages

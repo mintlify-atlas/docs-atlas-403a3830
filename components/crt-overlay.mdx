@@ -1,7 +1,7 @@
 ---
-title: "CRTOverlay: Scanline & Vignette Screen Effect"
+title: "CRTOverlay: Three-Layer CRT Scanline Screen Component"
 sidebarTitle: "CRT Overlay"
-description: "A fixed, three-layer CRT screen simulation — scanlines, animated bar, and edge vignette — rendered above all content in Dev Mode Arcade."
+description: "A fixed three-layer CRT simulation: scanlines, animated bright-bar sweep, and radial vignette rendered above all content in Dev Mode Arcade."
 ---
 
 `CRTOverlay` drapes a persistent cathode-ray tube illusion over the entire viewport. It stacks three visual layers — a static scanline grid, a looping bright bar that travels down the screen, and a radial vignette that darkens the edges — to make every page feel like it's being displayed on a genuine arcade monitor. Because it uses `pointer-events-none`, it never interferes with clicks, keyboard focus, or any other interactivity beneath it.
@@ -43,8 +43,8 @@ A full-bleed div that applies the `scanlines-bg` utility class. This class gener
 .scanlines-bg {
   background: linear-gradient(
     to bottom,
-    transparent,
-    transparent 50%,
+    #fff0,
+    #fff0 50%,
     rgba(0, 0, 0, 0.25) 50%,
     rgba(0, 0, 0, 0.25)
   );
@@ -67,7 +67,7 @@ A 128px-tall (`h-32`) horizontal bar with a soft white gradient feathered at bot
 ```css
 @keyframes scanline {
   0%   { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
+  100% { transform: translateY(100%); }
 }
 
 .animate-scanline {

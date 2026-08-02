@@ -1,5 +1,5 @@
 ---
-title: "Contact Page: High Score Entry & Guestbook"
+title: "Contact Page: Arcade High Score Entry and Guestbook"
 sidebarTitle: "Contact"
 description: "High-score contact screen: three-initials entry form, optional message, and a guestbook leaderboard table. Fully client-side with no backend integration."
 ---
@@ -78,29 +78,28 @@ The leaderboard table renders all entries from the `guestbook` array. It mirrors
 
 | Rank | Score | Name | Message |
 |---|---|---|---|
-| #1 | 999,999 | AAA | insert token here |
-| #2 | 500,000 | MOM | proud of you |
-| #3 | 1,337 | H4X | nice code |
-| #4 | 100 | DOG | woof |
+| #1 | 999,999 | AAA | HIRED. |
+| #2 | 500,000 | MOM | Very proud of you sweetie |
+| #3 | 1,337 | H4X | Nice CSS. |
+| #4 | 100 | DOG | Woof. |
 
 ## Data Schema
 
 Each entry in the `guestbook` array must conform to the following shape:
 
-```ts
-type GuestbookEntry = {
-  id: string;       // Unique identifier, used as React key
-  initials: string; // Three-character player name (uppercase)
-  score: number;    // Numeric score value for display
-  message: string;  // Short message shown in the MESSAGE column
-};
+```js
+// data/mockData.js — guestbook entry shape
+{
+  initials: string, // Three-character player name (uppercase)
+  score: number,    // Numeric score value for display
+  message: string,  // Short message shown in the MESSAGE column
+}
 ```
 
 ### Field Reference
 
 | Field | Type | Displayed As | Notes |
 |---|---|---|---|
-| `id` | `string` | Not displayed | Used as React list key |
 | `initials` | `string` | NAME column, pixel font | Exactly 3 chars, uppercase |
 | `score` | `number` | SCORE column | Rendered with `toLocaleString()` |
 | `message` | `string` | MESSAGE column | Keep under 30 chars for table fit |
@@ -109,16 +108,16 @@ type GuestbookEntry = {
 
 **Editing default guestbook entries**
 
-Open `data/mockData.js` and update the `guestbook` array. Reorder, add, or remove entries as desired. Rank is derived from position in the array, so sort entries by descending score for correct display.
+Open `data/mockData.js` and update the `guestbook` array (exported as `g`). Reorder, add, or remove entries as desired. Rank is derived from position in the array, so sort entries by descending score for correct display.
 
 ```js
-// data/mockData.js
-export const guestbook = [
-  { id: "g1", initials: "AAA", score: 999999, message: "insert token here" },
-  { id: "g2", initials: "MOM", score: 500000, message: "proud of you" },
-  { id: "g3", initials: "H4X", score: 1337,   message: "nice code" },
-  { id: "g4", initials: "DOG", score: 100,    message: "woof" },
-];
+// data/mockData.js (export g)
+[
+  { initials: "AAA", score: 999999, message: "HIRED." },
+  { initials: "MOM", score: 500000, message: "Very proud of you sweetie" },
+  { initials: "H4X", score: 1337,   message: "Nice CSS." },
+  { initials: "DOG", score: 100,    message: "Woof." },
+]
 ```
 
 **Adding a real form backend**
@@ -143,7 +142,7 @@ const handleSubmit = async (e) => {
 
 **Changing the score values**
 
-Score values in the guestbook are purely decorative. Feel free to assign any numbers that fit the arcade aesthetic — the important visual effect is the high-score formatting with leading zeros or commas.
+Score values in the guestbook are purely decorative. Feel free to assign any numbers that fit the arcade aesthetic — the important visual effect is the high-score formatting with commas.
 
 <Tip>
   To prevent the three initials inputs from feeling disconnected, ensure each `input` element has a matching `ref` so the auto-focus advancement logic can programmatically call `.focus()` on the next field. If you refactor the input layout, preserve the `maxLength={1}` + `ref` + `onChange` auto-advance pattern to maintain the arcade feel.
